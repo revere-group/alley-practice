@@ -28,9 +28,9 @@ public class KitListCommand extends BaseCommand {
         sender.sendMessage("");
         sender.sendMessage(CC.translate("     &6&lKit List &f(" + kitService.getKits().size() + "&f)"));
         if (kitService.getKits().isEmpty()) {
-            sender.sendMessage(CC.translate("      &f◆ &cNo Kits available."));
+            sender.sendMessage(CC.translate("      &6│ &cNo Kits available."));
         }
-        kitService.getKits().forEach(kit -> sender.sendMessage(CC.translate("      &f◆ &6" + kit.getDisplayName() + " &f(" + (kit.isEnabled() ? "&aEnabled" : "&cDisabled") + "&f)")));
+        kitService.getKits().forEach(kit -> sender.sendMessage(CC.translate("      &6│ &6" + kit.getDisplayName() + " &f(" + (kit.isEnabled() ? "&aEnabled" : "&cDisabled") + "&f)")));
         sender.sendMessage("");
     }
 }

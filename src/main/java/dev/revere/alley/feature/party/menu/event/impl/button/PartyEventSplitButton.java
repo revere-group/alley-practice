@@ -60,6 +60,6 @@ public class PartyEventSplitButton extends Button {
         }
 
         Arena arena = AlleyPlugin.getInstance().getService(ArenaService.class).getRandomArena(this.kit);
-        AlleyPlugin.getInstance().getService(PartyService.class).startMatch(this.kit, arena, party);
+        AlleyPlugin.getInstance().getService(PartyService.class).startSplitMatch(this.kit, arena, party);
     }
 }

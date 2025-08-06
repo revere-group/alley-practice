@@ -13,6 +13,7 @@ public enum CooldownType {
     PARTY_ANNOUNCE_COOLDOWN(600 * 1000L),
     FIREBALL(500L),
     GOLDEN_HEAD_CONSUME(2 * 1000L),
+    TOURNAMENT_HOST(1800 * 1000L)
 
     ;
 

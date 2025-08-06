@@ -50,7 +50,7 @@ public class LoreHelper {
      */
     public String displayStatus(boolean value) {
         String returnValue = value ? "&aEnabled" : "&cDisabled";
-        return ChatColor.translateAlternateColorCodes('&', "&f● &6Status: &f" + returnValue);
+        return ChatColor.translateAlternateColorCodes('&', "&6│ &6Status: &f" + returnValue);
     }
 
     /**

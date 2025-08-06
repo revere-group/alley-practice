@@ -4,10 +4,7 @@ import dev.revere.alley.core.config.ConfigService;
 import dev.revere.alley.core.profile.ProfileService;
 import dev.revere.alley.core.profile.Profile;
 import dev.revere.alley.core.profile.enums.ProfileState;
-import dev.revere.alley.visual.scoreboard.internal.FFAScoreboardImpl;
-import dev.revere.alley.visual.scoreboard.internal.LobbyScoreboardImpl;
-import dev.revere.alley.visual.scoreboard.internal.QueueScoreboardImpl;
-import dev.revere.alley.visual.scoreboard.internal.SpectatorScoreboardImpl;
+import dev.revere.alley.visual.scoreboard.internal.*;
 import dev.revere.alley.visual.scoreboard.internal.match.MatchScoreboardImpl;
 import dev.revere.alley.common.animation.AnimationService;
 import dev.revere.alley.common.animation.AnimationType;
@@ -34,6 +31,7 @@ public class AssembleAdapterImpl implements AssembleAdapter {
     private final MatchScoreboardImpl matchScoreboardImpl = new MatchScoreboardImpl();
     private final SpectatorScoreboardImpl spectatorScoreboardImpl = new SpectatorScoreboardImpl();
     private final FFAScoreboardImpl ffaScoreboardImpl = new FFAScoreboardImpl();
+    private final TournamentScoreboardImpl tournamentScoreboardImpl = new TournamentScoreboardImpl();
 
     public AssembleAdapterImpl(AnimationService animationService, ProfileService profileService, ConfigService configService) {
         this.animationService = animationService;
@@ -73,6 +71,9 @@ public class AssembleAdapterImpl implements AssembleAdapter {
                     break;
                 case PLAYING:
                     lines.addAll(this.matchScoreboardImpl.getLines(profile, player));
+                    break;
+                case PLAYING_TOURNAMENT:
+                    lines.addAll(this.tournamentScoreboardImpl.getLines(profile));
                     break;
                 case SPECTATING:
                     lines.addAll(this.spectatorScoreboardImpl.getLines(profile));

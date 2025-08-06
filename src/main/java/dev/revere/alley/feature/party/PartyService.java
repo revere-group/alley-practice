@@ -115,7 +115,16 @@ public interface PartyService extends Service {
      * @param arena The arena for the match.
      * @param party The party starting the match.
      */
-    void startMatch(Kit kit, Arena arena, Party party);
+    void startSplitMatch(Kit kit, Arena arena, Party party);
+
+    /**
+     * Starts a free-for-all match for a party.
+     *
+     * @param kit   The kit for the match.
+     * @param arena The arena for the match.
+     * @param party The party starting the match.
+     */
+    void startFFAMatch(Kit kit, Arena arena, Party party);
 
     /**
      * Announces a party to the entire server, inviting players to join.

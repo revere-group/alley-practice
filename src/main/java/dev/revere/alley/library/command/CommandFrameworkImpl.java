@@ -92,7 +92,6 @@ public class CommandFrameworkImpl implements CommandFramework, CommandExecutor {
         registerHelp();
     }
 
-
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         return handleCommand(sender, cmd, label, args);

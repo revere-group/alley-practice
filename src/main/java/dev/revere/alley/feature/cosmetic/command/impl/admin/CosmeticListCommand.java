@@ -54,7 +54,7 @@ public class CosmeticListCommand extends BaseCommand {
             player.sendMessage(CC.translate(header));
 
             for (Cosmetic cosmetic : cosmetics) {
-                player.sendMessage(CC.translate("      &f◆ &6" + cosmetic.getName()));
+                player.sendMessage(CC.translate("      &6│ &6" + cosmetic.getName()));
             }
         }
 

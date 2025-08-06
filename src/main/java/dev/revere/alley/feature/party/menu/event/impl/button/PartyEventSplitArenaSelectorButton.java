@@ -2,6 +2,7 @@ package dev.revere.alley.feature.party.menu.event.impl.button;
 
 import dev.revere.alley.AlleyPlugin;
 import dev.revere.alley.common.item.ItemBuilder;
+import dev.revere.alley.common.text.CC;
 import dev.revere.alley.core.locale.LocaleService;
 import dev.revere.alley.core.locale.internal.impl.message.GlobalMessagesLocaleImpl;
 import dev.revere.alley.core.profile.ProfileService;
@@ -32,9 +33,11 @@ public class PartyEventSplitArenaSelectorButton extends Button {
         return new ItemBuilder(Material.PAPER)
                 .name("&6&l" + this.arena.getName())
                 .lore(
-                        " &f◆ &6Kit: &f" + this.kit.getDisplayName(),
+                        CC.MENU_BAR,
+                        " &6│ &6Kit: &f" + this.kit.getDisplayName(),
                         "",
-                        "&aClick to select!"
+                        "&aClick to select!",
+                        CC.MENU_BAR
                 )
                 .durability(0)
                 .hideMeta()
@@ -53,6 +56,6 @@ public class PartyEventSplitArenaSelectorButton extends Button {
         }
 
         PartyService partyService = AlleyPlugin.getInstance().getService(PartyService.class);
-        partyService.startMatch(this.kit, this.arena, party);
+        partyService.startSplitMatch(this.kit, this.arena, party);
     }
 }

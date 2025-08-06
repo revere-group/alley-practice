@@ -37,7 +37,7 @@ public class DisplayTypeButton extends Button {
 
         List<String> lore = new ArrayList<>();
         for (LeaderboardType type : LeaderboardType.values()) {
-            lore.add((currentType == type ? "&f● &6" : "&f● &7") + type.getName());
+            lore.add((currentType == type ? "&6│ &6" : "&6│ &7") + type.getName());
         }
         lore.add("");
         lore.add("&aClick to change the display type.");

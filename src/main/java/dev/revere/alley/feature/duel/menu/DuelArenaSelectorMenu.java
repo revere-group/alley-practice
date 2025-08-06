@@ -72,8 +72,8 @@ public class DuelArenaSelectorMenu extends PaginatedMenu {
             return new ItemBuilder(Material.PAPER)
                     .name("&6&l" + this.arena.getDisplayName())
                     .lore(
-                            " &f◆ &6Target: &f" + this.targetPlayer.getName(),
-                            " &f◆ &6Kit: &f" + this.kit.getDisplayName(),
+                            " &6│ &6Target: &f" + this.targetPlayer.getName(),
+                            " &6│ &6Kit: &f" + this.kit.getDisplayName(),
                             "",
                             "&aClick to send request!"
                     )

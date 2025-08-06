@@ -50,10 +50,13 @@ import dev.revere.alley.feature.match.task.other.MatchCampProtectionTask;
 import dev.revere.alley.feature.match.task.other.MatchRespawnTask;
 import dev.revere.alley.feature.queue.Queue;
 import dev.revere.alley.feature.spawn.SpawnService;
+import dev.revere.alley.feature.tournament.TournamentService;
+import dev.revere.alley.feature.tournament.model.Tournament;
 import dev.revere.alley.feature.visibility.VisibilityService;
 import dev.revere.alley.visual.nametag.NametagService;
 import lombok.Getter;
 import lombok.Setter;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -84,6 +87,8 @@ public abstract class Match {
     private final Kit kit;
     private final Arena arena;
     private final boolean ranked;
+
+    protected Tournament tournament;
 
     private final Map<BlockState, Location> brokenBlocks = new ConcurrentHashMap<>();
     private final Map<BlockState, Location> placedBlocks = new ConcurrentHashMap<>();
@@ -190,6 +195,10 @@ public abstract class Match {
         this.cleanupHealthDisplay();
 
         this.plugin.getService(MatchService.class).removeMatch(this);
+
+        if (this.tournament != null) {
+           this.plugin.getService(TournamentService.class).handleMatchEnd(this);
+        }
     }
 
     private void deleteArenaCopyIfStandalone() {
@@ -422,18 +431,7 @@ public abstract class Match {
 
         player.setVelocity(new Vector());
 
-        if (this.canEndRound()) {
-            this.state = MatchState.ENDING_ROUND;
-            this.handleRoundEnd();
-
-            if (this.canEndMatch()) {
-                if (killer != null) {
-                    this.handleDeathEffects(player, killer);
-                }
-
-                this.state = MatchState.ENDING_MATCH;
-            }
-            this.runnable.setStage(4);
+        if (checkForConclusion(player, killer)) {
             return;
         }
 
@@ -457,6 +455,37 @@ public abstract class Match {
         if (!this.shouldHandleRegularRespawn(player)) {
             this.startRespawnProcess(player);
         }
+    }
+
+    /**
+     * Checks if the match has reached a conclusion (round end or match end) and handles it accordingly.
+     * This is the centralized method to determine if the match should end based on the current state and conditions.
+     *
+     * @param victim The player who may have triggered the conclusion (can be null).
+     * @param killer The killer involved in the conclusion (can be null).
+     * @return true if a conclusion is reached, false otherwise.
+     */
+    public boolean checkForConclusion(Player victim, Player killer) {
+        if (!this.canEndRound()) {
+            return false;
+        }
+
+        this.state = MatchState.ENDING_ROUND;
+        if (this.runnable != null) {
+            this.runnable.setStage(4);
+        }
+
+        this.handleRoundEnd();
+
+        if (this.canEndMatch()) {
+            if (victim != null && killer != null) {
+                this.handleDeathEffects(victim, killer);
+            }
+
+            this.state = MatchState.ENDING_MATCH;
+        }
+
+        return true;
     }
 
     /**
@@ -1177,6 +1206,28 @@ public abstract class Match {
     }
 
     /**
+     * Notifies all participants and spectators with an advanced chat component.
+     * This is used for sending clickable or hoverable messages.
+     *
+     * @param component The component(s) to send.
+     */
+    public void sendComponentMessage(BaseComponent component) {
+        this.getParticipants().forEach(gameParticipant -> gameParticipant.getPlayers().forEach(uuid -> {
+            Player player = this.plugin.getServer().getPlayer(uuid.getUuid());
+            if (player != null) {
+                player.spigot().sendMessage(component);
+            }
+        }));
+
+        this.getSpectators().forEach(uuid -> {
+            Player player = this.plugin.getServer().getPlayer(uuid);
+            if (player != null) {
+                player.spigot().sendMessage(component);
+            }
+        });
+    }
+
+    /**
      * Checks if the attacker is in the same participant team as the supposed victim.
      *
      * @param attacker The attacker.
@@ -1289,7 +1340,6 @@ public abstract class Match {
         }
     }
 
-
     @SuppressWarnings("deprecation")
     public void resetBlockChanges() {
         if (this.getKit().isSettingEnabled(KitSettingRaiding.class)) {
@@ -1371,7 +1421,6 @@ public abstract class Match {
             }
         }
     }
-
 
     private void handleMatchTasks() {
         this.runnable = new MatchTask(this);

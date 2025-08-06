@@ -19,6 +19,11 @@ import dev.revere.alley.feature.match.model.GameParticipant;
 import dev.revere.alley.feature.match.model.internal.MatchGamePlayer;
 import dev.revere.alley.feature.queue.Queue;
 import dev.revere.alley.feature.queue.QueueService;
+import dev.revere.alley.feature.match.model.GameParticipant;
+import dev.revere.alley.core.profile.ProfileService;
+import dev.revere.alley.core.profile.Profile;
+import dev.revere.alley.common.logger.Logger;
+import dev.revere.alley.feature.tournament.model.Tournament;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -137,7 +142,53 @@ public class MatchServiceImpl implements MatchService {
         match.setAffectStatistics(affectStatistics);
 
         this.addMatch(match);
+        match.startMatch();
+    }
 
+    @Override
+    public void createAndStartMatch(Kit kit, Arena arena, List<GameParticipant<MatchGamePlayer>> participants) {
+        for (GameParticipant<MatchGamePlayer> participant : participants) {
+            Profile profile = this.profileService.getProfile(participant.getLeader().getUuid());
+            if (profile != null && profile.getMatch() != null) {
+                Logger.warn("Profile " + profile.getName() + " is already in a match. Cannot start a new match.");
+                return;
+            }
+        }
+
+        Queue matchingQueue = this.queueService.getQueues().stream()
+                .filter(queue -> queue.getKit().equals(kit))
+                .findFirst()
+                .orElse(null);
+
+        Match match = new FFAMatch(matchingQueue, kit, arena, participants);
+        this.addMatch(match);
+        match.startMatch();
+    }
+
+    @Override
+    public void createTournamentMatch(Tournament tournament, Kit kit, Arena arena, GameParticipant<MatchGamePlayer> participantA, GameParticipant<MatchGamePlayer> participantB) {
+        MatchFactory factory = null;
+        for (Map.Entry<Class<? extends KitSetting>, MatchFactory> entry : matchFactoryRegistry.entrySet()) {
+            if (kit.isSettingEnabled(entry.getKey())) {
+                factory = entry.getValue();
+                break;
+            }
+        }
+
+        Match match;
+        if (factory != null) {
+            match = factory.create(null, kit, arena, false, participantA, participantB);
+        } else {
+            match = new DefaultMatch(null, kit, arena, false, participantA, participantB);
+        }
+
+        match.setTournament(tournament);
+        match.setAffectStatistics(false);
+        match.setTeamMatch(tournament.getTeamSize() > 1);
+
+        tournament.addActiveMatch(match);
+
+        this.addMatch(match);
         match.startMatch();
     }
 

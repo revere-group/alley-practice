@@ -17,8 +17,6 @@ import java.util.Map;
  * @date 08/10/2024 - 18:38
  */
 public class PartyEventSplitMenu extends Menu {
-    protected final AlleyPlugin plugin = AlleyPlugin.getInstance();
-
     @Override
     public String getTitle(Player player) {
         return "&6&lSelect a kit";

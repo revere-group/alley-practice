@@ -73,6 +73,37 @@ scoreboard:
       - "&6&l│ &rIn Game: &6{playing}"
       - "&6&l│ &rIn Queue: &6{in-queue}"
       - "{music}"
+    tournament:
+      waiting:
+        - "{sidebar}"
+        - "&6&lTournament"
+        - "&6&l│ &rType: &6{tournament_type}"
+        - "&6&l│ &rKit: &6{tournament_kit}"
+        - "&6&l│ &rPlayers: &6{tournament_players}&f/&6{tournament_max_players}"
+        - ""
+        - "&fWaiting for players..."
+      starting:
+        - "{sidebar}"
+        - "&6&lTournament"
+        - "&6&l│ &rType: &6{tournament_type}"
+        - "&6&l│ &rKit: &6{tournament_kit}"
+        - "&6&l│ &rPlayers: &6{tournament_players}&f/&6{tournament_max_players}"
+        - ""
+        - "&aStarting in {countdown}s..."
+      in-progress:
+        - "{sidebar}"
+        - "&6&lTournament"
+        - "&6&l│ &rRound: &6{tournament_round}"
+        - "&6&l│ &rTeams: &6{tournament_teams_left}&f/&6{tournament_teams_total}"
+        - ""
+        - "&fWaiting for your next match..."
+      in-progress-waiting:
+        - "{sidebar}"
+        - "&6&lTournament"
+        - "&6&l│ &rRound: &6{tournament_round}"
+        - "&6&l│ &rTeams: &6{tournament_teams_left}&f/&6{tournament_teams_total}"
+        - ""
+        - "&fNext round in {round_countdown}s..."
     party:
       - "{sidebar}"
       - "&6&lLobby"
@@ -112,6 +143,16 @@ scoreboard:
           - "&6&l│ &rOpponent: &6{opponent}"
           - "&6&l│ &rDuration: &6{duration}"
           - "&6&l│ &rPing: &a{player-ping}&f ┃ &c{opponent-ping}ms"
+        ffa-match:
+          - "{sidebar}"
+          - "&6&lFFA Match"
+          - "&6&l│ &rKit: &6{kit}"
+          - "&6&l│ &rPlayers: &6{players}"
+          - "&6&l│ &rPing: &a{ping}ms"
+          - ""
+          - "&6&lStats"
+          - "&6&l│ &rKills: &a{kills}"
+          - "&6&l│ &rDeaths: &c{deaths}"
         hideandseek-match:
           hiding:
             - "{sidebar}"
@@ -342,6 +383,14 @@ scoreboard:
         - "&6&lPlayers"
         - "&6&l│ &r{colorA}{playerA} &f(&a{pingA}ms&f)"
         - "&6&l│ &r{colorB}{playerB} &f(&c{pingB}ms&f)"
+      ffa-match:
+        - "{sidebar}"
+        - "&6&lSpectating Match"
+        - "&6&l│ &rKit: &6{kit}"
+        - "&6&l│ &rArena: &6{arena}"
+        - ""
+        - "&6&lPlayers Left: &e{players_alive}&f/&e{players_total}"
+        - "{player_list}"
       ffa:
         - "{sidebar}"
         - "&6&lSpectating FFA"

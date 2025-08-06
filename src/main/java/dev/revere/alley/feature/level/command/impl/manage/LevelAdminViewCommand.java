@@ -45,12 +45,12 @@ public class LevelAdminViewCommand extends BaseCommand {
         Arrays.asList(
                 "",
                 "&6&lLevel Information:",
-                " &f◆ &6Name: &e" + level.getName(),
-                " &f◆ &6Display Name: &e" + level.getDisplayName(),
-                " &f◆ &6Minimum Elo: &e" + level.getMinElo(),
-                " &f◆ &6Maximum Elo: &e" + level.getMaxElo(),
-                " &f◆ &6Material: &e" + level.getMaterial().name(),
-                " &f◆ &6Durability: &e" + level.getDurability(),
+                " &6│ &6Name: &e" + level.getName(),
+                " &6│ &6Display Name: &e" + level.getDisplayName(),
+                " &6│ &6Minimum Elo: &e" + level.getMinElo(),
+                " &6│ &6Maximum Elo: &e" + level.getMaxElo(),
+                " &6│ &6Material: &e" + level.getMaterial().name(),
+                " &6│ &6Durability: &e" + level.getDurability(),
                 ""
         ).forEach(line -> sender.sendMessage(CC.translate(line)));
     }

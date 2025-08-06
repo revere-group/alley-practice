@@ -40,10 +40,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -89,7 +86,6 @@ public class PartyServiceImpl implements PartyService {
         this.arenaService = arenaService;
         this.localeService = localeService;
     }
-
     @Override
     public void initialize(AlleyContext context) {
         this.chatFormat = this.localeService.getString(SettingsLocaleImpl.SERVER_CHAT_FORMAT_PARTY);
@@ -101,7 +97,7 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
-    public void startMatch(Kit kit, Arena arena, Party party) {
+    public void startSplitMatch(Kit kit, Arena arena, Party party) {
         List<Player> allPartyPlayers = party.getMembers().stream()
                 .map(Bukkit::getPlayer)
                 .collect(Collectors.toList());
@@ -135,6 +131,29 @@ public class PartyServiceImpl implements PartyService {
 
         this.matchService.createAndStartMatch(
                 kit, this.arenaService.selectArenaWithPotentialTemporaryCopy(arena), participantA, participantB, true, false, false
+        );
+    }
+
+    @Override
+    public void startFFAMatch(Kit kit, Arena arena, Party party) {
+        List<Player> allPartyPlayers = party.getMembers().stream()
+                .map(Bukkit::getPlayer)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        if (allPartyPlayers.size() < 2) {
+            party.getLeader().sendMessage(CC.translate("&cYou need at least 2 players in your party to start a FFA match."));
+            return;
+        }
+
+        List<GameParticipant<MatchGamePlayer>> participants = new ArrayList<>();
+        for (Player player : allPartyPlayers) {
+            MatchGamePlayer gamePlayer = new MatchGamePlayer(player.getUniqueId(), player.getName());
+            participants.add(new TeamGameParticipant<>(gamePlayer));
+        }
+
+        this.matchService.createAndStartMatch(
+                kit, this.arenaService.selectArenaWithPotentialTemporaryCopy(arena), participants
         );
     }
 
@@ -180,7 +199,7 @@ public class PartyServiceImpl implements PartyService {
     public void disbandParty(Player leader) {
         Party party = this.getPartyByLeader(leader);
         if (party == null) {
-            leader.sendMessage(AlleyPlugin.getInstance().getService(LocaleService.class).getString(GlobalMessagesLocaleImpl.ERROR_YOU_NOT_IN_PARTY));
+            leader.sendMessage(this.localeService.getString(GlobalMessagesLocaleImpl.ERROR_YOU_NOT_IN_PARTY));
             return;
         }
 

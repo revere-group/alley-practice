@@ -40,7 +40,7 @@ public class KitViewSettingsCommand extends BaseCommand {
 
         sender.sendMessage("");
         sender.sendMessage(CC.translate("&6&lKit Settings for " + kit.getName()));
-        kit.getKitSettings().forEach(setting -> sender.sendMessage(CC.translate(" &f◆ &6" + setting.getName() + " &f(" + (setting.isEnabled() ? "&aEnabled" : "&cDisabled") + "&f)")));
+        kit.getKitSettings().forEach(setting -> sender.sendMessage(CC.translate(" &6│ &6" + setting.getName() + " &f(" + (setting.isEnabled() ? "&aEnabled" : "&cDisabled") + "&f)")));
         sender.sendMessage("");
     }
 }

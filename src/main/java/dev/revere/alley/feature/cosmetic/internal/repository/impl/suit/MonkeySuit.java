@@ -23,7 +23,7 @@ import java.util.Map;
         name = "Monkey",
         description = "Unleash your inner primate as a monkey.",
         icon = Material.VINE,
-        slot = 17,
+        slot = 19,
         price = 1000
 )
 public class MonkeySuit extends BaseSuit {

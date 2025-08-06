@@ -56,12 +56,12 @@ public class MatchHistoryViewButton extends Button {
                             "&7" + date,
                             "",
                             "&6&lParticipants",
-                            " &f● Winner: &a" + winnerName,
-                            " &f● Loser: &c" + loserName,
+                            " &6│ Winner: &a" + winnerName,
+                            " &6│ Loser: &c" + loserName,
                             "",
                             "&6&lMatch Details",
-                            " &f● Kit: &6" + kit.getDisplayName(),
-                            " &f● Arena: &6" + arena.getDisplayName(),
+                            " &6│ Kit: &6" + kit.getDisplayName(),
+                            " &6│ Arena: &6" + arena.getDisplayName(),
                             "",
                             "&aClick to view more details!"
                     )
