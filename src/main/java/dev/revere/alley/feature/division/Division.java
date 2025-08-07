@@ -3,7 +3,6 @@ package dev.revere.alley.feature.division;
 import dev.revere.alley.feature.division.model.DivisionTier;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.var;
 import org.bukkit.Material;
 
 import java.util.List;
@@ -56,7 +55,7 @@ public class Division {
             return null;
         }
 
-        var divisionTier = this.tiers.get(tier);
+        DivisionTier divisionTier = this.tiers.get(tier);
         return divisionTier.getName();
     }
 

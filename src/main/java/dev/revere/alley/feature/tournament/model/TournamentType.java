@@ -15,7 +15,6 @@ public enum TournamentType {
     DUO("2v2", 2, 16, 4),
     THREE("3v3", 3, 16, 4),
     FOUR("4v4", 4, 8, 2);
-    ;
 
     private final String displayName;
     private final int teamSize;

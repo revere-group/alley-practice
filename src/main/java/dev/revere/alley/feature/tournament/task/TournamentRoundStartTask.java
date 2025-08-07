@@ -31,7 +31,7 @@ public class TournamentRoundStartTask implements Runnable{
             return;
         }
 
-        if (countdown <= 5 || countdown % 5 == 0) {
+        if (countdown <= 3 || countdown % 5 == 0) {
             String message = CC.translate("&6[Tournament] &aThe next round will begin in &e" + countdown + " &aseconds...");
             tournament.broadcast(message);
             tournament.getAllPlayers().forEach(player -> player.playSound(player.getLocation(), Sound.NOTE_PLING, 1.0f, 1.2f));
