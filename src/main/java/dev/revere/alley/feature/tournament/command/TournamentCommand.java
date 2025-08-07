@@ -158,6 +158,8 @@ public class TournamentCommand extends BaseCommand {
         int currentPlayers = tournament.getWaitingPool().stream().mapToInt(TournamentParticipant::getSize).sum();
         int maxPlayers = tournament.getMaxTeams() * tournament.getTeamSize();
 
+        // todo: update this text
+
         player.sendMessage(CC.translate("&6&lTournament Information"));
         player.sendMessage(CC.translate(" &6│ &6Type: &f" + tournament.getDisplayName()));
         player.sendMessage(CC.translate(" &6│ &6Kit: &f" + tournament.getKit().getDisplayName()));

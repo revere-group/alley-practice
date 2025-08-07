@@ -32,8 +32,8 @@ public class TournamentStartTask implements Runnable {
         }
 
         if (countdown <= 5 || countdown == 10) {
-            String message = CC.translate("&6[Tournament] &fStarting in &e" + countdown + " &fsecond" + (countdown == 1 ? "" : "s") + "...");
-            tournament.broadcast(message);
+            String message = CC.translate("&6Round 1 &fstarts in &6" + countdown + "&f.");
+            service.sendTournamentMessage(tournament, message);
             tournament.getAllPlayers().forEach(p -> p.playSound(p.getLocation(), Sound.NOTE_PLING, 1.0F, 1.0F));
         }
 

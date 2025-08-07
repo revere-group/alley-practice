@@ -35,6 +35,9 @@ import dev.revere.alley.feature.tournament.task.TournamentBroadcastTask;
 import dev.revere.alley.feature.tournament.task.TournamentRoundStartTask;
 import dev.revere.alley.feature.tournament.task.TournamentStartTask;
 import lombok.Getter;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -156,14 +159,32 @@ public class TournamentServiceImpl implements TournamentService {
         GameParticipant<MatchGamePlayer> winner = defaultMatch.getWinner();
         GameParticipant<MatchGamePlayer> loser = defaultMatch.getLoser();
 
+        int teamsInCurrentRound = tournament.getRoundParticipants().size();
+
+        if (winner != null) {
+            sendWinnerMessage(findParticipantGroupForPlayer(tournament, winner.getLeader().getUuid()));
+        }
+
+        if (winner != null) {
+            sendLoserMessage(findParticipantGroupForPlayer(tournament, loser.getLeader().getUuid()), teamsInCurrentRound);
+        }
+
         updateWinnerState(tournament, winner);
-        if (loser != null) {
+        if (loser != null && winner != null) {
             handleLoserElimination(tournament, winner, loser);
         }
 
         tournament.removeActiveMatch(match);
+
         if (tournament.getActiveMatches().isEmpty()) {
-            checkForNextRound(tournament);
+            if (tournament.getRoundParticipants().size() <= 1) {
+                checkForNextRound(tournament);
+            } else {
+                tournament.setCurrentRound(tournament.getCurrentRound() + 1);
+
+                this.tournamentRoundStartTask = new TournamentRoundStartTask(tournament, this);
+                tournament.setRoundStartTask(TaskUtil.runTimer(this.tournamentRoundStartTask, 0L, 20L));
+            }
         }
     }
 
@@ -210,6 +231,39 @@ public class TournamentServiceImpl implements TournamentService {
     @Override
     public List<Tournament> getTournaments() {
         return new ArrayList<>(activeTournaments.values());
+    }
+
+    private void sendWinnerMessage(Optional<TournamentParticipant> winnerOpt) {
+        if (!winnerOpt.isPresent()) return;
+
+        TextComponent statusLine = new TextComponent(CC.translate(" &aView Status: "));
+        TextComponent clickPart = new TextComponent(CC.translate("&7&o(Click Here)"));
+        clickPart.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tournament info"));
+        clickPart.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(CC.translate("&eClick to view tournament status."))}));
+        statusLine.addExtra(clickPart);
+
+        winnerOpt.get().getOnlinePlayers().forEach(player -> {
+            player.sendMessage(CC.translate("&a&lYOU'VE WON THE ROUND"));
+            player.spigot().sendMessage(statusLine);
+            player.sendMessage("");
+        });
+    }
+
+    private void sendLoserMessage(Optional<TournamentParticipant> loserOpt, int teamsInRound) {
+        if (!loserOpt.isPresent()) return;
+
+        TextComponent statusLine = new TextComponent(CC.translate(" &cView Status: "));
+        TextComponent clickPart = new TextComponent(CC.translate("&7&o(Click Here)"));
+        clickPart.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tournament info"));
+        clickPart.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new BaseComponent[]{new TextComponent(CC.translate("&eClick to view tournament status."))}));
+        statusLine.addExtra(clickPart);
+
+        loserOpt.get().getOnlinePlayers().forEach(player -> {
+            player.sendMessage(CC.translate("&c&lYOU'VE BEEN ELIMINATED"));
+            player.spigot().sendMessage(statusLine);
+            player.sendMessage(CC.translate("&7You placed #" + teamsInRound + "!"));
+            player.sendMessage("");
+        });
     }
 
     /**
@@ -300,8 +354,19 @@ public class TournamentServiceImpl implements TournamentService {
             TournamentParticipant tournamentLoser = tournamentLoserOpt.get();
             TournamentParticipant tournamentWinner = tournamentWinnerOpt.get();
 
-            String eliminationMessage = CC.translate("&c" + getTeamDisplayName(tournamentLoser) + " &fwas eliminated by &a" + getTeamDisplayName(tournamentWinner) + "&f.");
+            String loserNames = TournamentMessageBuilder.getNaturalTeamNameList(tournamentLoser, "&c");
+            String winnerNames = TournamentMessageBuilder.getNaturalTeamNameList(tournamentWinner, "&a");
+
+            String verb = tournamentLoser.getSize() > 1 ? "were" : "was";
+
+            int remainingPlayers = tournament.getRoundParticipants().stream()
+                            .mapToInt(TournamentParticipant::getSize).sum() - tournamentLoser.getSize();
+
+            String eliminationMessage = String.format("%s &f%s eliminated by %s&f. (&6%d&f/&6%d&f)",
+                    loserNames, verb, winnerNames, remainingPlayers, tournament.getInitialPlayerCount());
             sendTournamentMessage(tournament, eliminationMessage);
+
+            tournament.getPlacementList().add(0, tournamentLoser);
             removeGroupFromTournament(tournamentLoser);
         }
     }
@@ -418,7 +483,7 @@ public class TournamentServiceImpl implements TournamentService {
         int maxPlayers = tournament.getMaxTeams() * tournament.getTeamSize();
         String joinMessage = TournamentMessageBuilder.generateParticipantBroadcast(newParticipant, "has joined", "have joined");
 
-        sendTournamentMessage(tournament, joinMessage + " (" + newTotalPlayers + "/" + maxPlayers + " Players)");
+        sendTournamentMessage(tournament, joinMessage + " &7(" + newTotalPlayers + "/" + maxPlayers + " players)");
     }
 
     /**
@@ -476,7 +541,7 @@ public class TournamentServiceImpl implements TournamentService {
      * Applies a new hosting cooldown for the tournament host.
      */
     private void applyHostCooldown() {
-        Cooldown newCooldown = new Cooldown(CooldownType.TOURNAMENT_HOST, () -> sendTournamentMessage(null, CC.translate("&6[Tournament] &aA tournament can now be hosted!")));
+        Cooldown newCooldown = new Cooldown(CooldownType.TOURNAMENT_HOST, () -> sendTournamentMessage(null, CC.translate("&aA tournament can now be hosted!")));
         newCooldown.resetCooldown();
         cooldownService.addCooldown(GLOBAL_COOLDOWN_UUID, CooldownType.TOURNAMENT_HOST, newCooldown);
     }
@@ -517,7 +582,7 @@ public class TournamentServiceImpl implements TournamentService {
             cooldownService.removeCooldown(GLOBAL_COOLDOWN_UUID, CooldownType.TOURNAMENT_HOST);
             Player host = Bukkit.getPlayer(tournament.getHostName());
             if (host != null) {
-                host.sendMessage(CC.translate("&a[Tournament] Your hosting cooldown has been cleared because the tournament timed out."));
+                sendTournamentMessage(tournament, "&cThe tournament did not fill up in time.");
             }
         }
     }
@@ -545,10 +610,16 @@ public class TournamentServiceImpl implements TournamentService {
      * @param tournament The tournament to start.
      */
     public void startTournament(Tournament tournament) {
+        tournament.setCurrentRound(1);
         tournament.setState(TournamentState.IN_PROGRESS);
-        tournament.broadcast(CC.translate("&6[Tournament] &aThe tournament is starting! Forming teams..."));
+        sendTournamentMessage(tournament, CC.translate("&aThe tournament is starting! Forming teams..."));
 
         formTeams(tournament);
+
+        int totalPlayers = tournament.getParticipants().stream()
+                .mapToInt(TournamentParticipant::getSize)
+                .sum();
+        tournament.setInitialPlayerCount(totalPlayers);
 
         if (tournament.getParticipants().size() < 2) {
             cancelTournament(tournament, "Not enough players to start.");
@@ -578,15 +649,17 @@ public class TournamentServiceImpl implements TournamentService {
      * @param tournament The tournament to start the round for.
      */
     private void startRound(Tournament tournament) {
-        tournament.setCurrentRound(tournament.getCurrentRound() + 1);
-        tournament.broadcast(CC.translate("&6[Tournament] &fStarting Round " + tournament.getCurrentRound() + "!"));
-
         List<TournamentParticipant> participants = new ArrayList<>(tournament.getRoundParticipants());
         Collections.shuffle(participants);
 
         if (participants.size() % 2 != 0) {
             TournamentParticipant byeParticipant = participants.remove(participants.size() - 1);
-            byeParticipant.getOnlinePlayers().forEach(p -> p.sendMessage(CC.translate("&6[Tournament] &aYou have received a bye and advance to the next round!")));
+            byeParticipant.getOnlinePlayers().forEach(player -> {
+                player.sendMessage("");
+                player.sendMessage(CC.translate("&c&lYou are being skipped this round."));
+                player.sendMessage(CC.translate("&c&lWe couldn't find a match for you."));
+                player.sendMessage("");
+            });
         }
 
         for (int i = 0; i < participants.size(); i += 2) {
@@ -652,8 +725,7 @@ public class TournamentServiceImpl implements TournamentService {
         if (tournament.getRoundParticipants().size() == 1) {
             endTournament(tournament, tournament.getRoundParticipants().get(0));
         } else if (tournament.getRoundParticipants().size() > 1) {
-            this.tournamentRoundStartTask = new TournamentRoundStartTask(tournament, this);
-            tournament.setRoundStartTask(TaskUtil.runTimer(this.tournamentRoundStartTask, 0L, 20L));
+            startRound(tournament);
         } else {
             cancelTournament(tournament, "No participants remaining.");
         }
@@ -668,22 +740,23 @@ public class TournamentServiceImpl implements TournamentService {
     private void endTournament(Tournament tournament, TournamentParticipant winner) {
         tournament.setState(TournamentState.ENDED);
 
-        String winnerName = winner.getLeaderName();
-        String teamText = winner.getSize() > 1 ? "'s Team" : "";
+        List<TournamentParticipant> placements = new ArrayList<>();
+        placements.add(winner);
+        placements.addAll(tournament.getPlacementList());
 
-        TextComponent title = new TextComponent(CC.translate("&6&lTournament Winner"));
-        TextComponent winnerComponent = new TextComponent(CC.translate("&6&l│ &fWinner: &a" + winnerName + teamText));
-        TextComponent kitComponent = new TextComponent(CC.translate("&6&l│ &fKit: &a" + tournament.getKit().getDisplayName()));
-        TextComponent roundComponent = new TextComponent(CC.translate("&6&l│ &fRounds: &a" + tournament.getCurrentRound()));
+        sendTournamentMessage(null, "");
+        sendTournamentMessage(null, "&6&lTournament");
+        sendTournamentMessage(null, " &6│ &f" + tournament.getKit().getDisplayName() + " &7(" + tournament.getInitialPlayerCount() + ")");
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.sendMessage("");
-            player.spigot().sendMessage(title);
-            player.spigot().sendMessage(winnerComponent);
-            player.spigot().sendMessage(kitComponent);
-            player.spigot().sendMessage(roundComponent);
-            player.sendMessage("");
+        String[] prefixes = {"&6&l✫1", "&7&l✫2", "&c&l✫3"};
+
+        int limit = Math.min(placements.size(), 3);
+        for (int i = 0; i < limit; i++) {
+            TournamentParticipant participant = placements.get(i);
+            String teamNameString = TournamentMessageBuilder.getNaturalTeamNameListWithProfileColors(participant);
+            sendTournamentMessage(null, "   " + prefixes[i] + " " + teamNameString);
         }
+        sendTournamentMessage(null, "");
 
         winner.getOnlinePlayers().forEach(this::resetPlayerStateToLobby);
         activeTournaments.remove(tournament.getTournamentId());
@@ -783,9 +856,8 @@ public class TournamentServiceImpl implements TournamentService {
      * @param tournament The tournament to send the message to, or null to broadcast globally.
      * @param message    The message content.
      */
-    private void sendTournamentMessage(Tournament tournament, String message) {
-        String prefix = CC.translate("&6[Tournament] &f");
-        String formattedMessage = prefix + CC.translate(message);
+    public void sendTournamentMessage(Tournament tournament, String message) {
+        String formattedMessage = CC.translate(message);
 
         if (tournament != null) {
             tournament.broadcast(formattedMessage);

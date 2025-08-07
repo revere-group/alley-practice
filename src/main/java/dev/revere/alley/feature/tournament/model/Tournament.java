@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -34,6 +35,9 @@ public class Tournament {
     @Setter private BukkitTask broadcastTask;
     @Setter private BukkitTask inactivityTask;
     @Setter private BukkitTask roundStartTask;
+
+    @Setter private int initialPlayerCount = 0;
+    private final List<TournamentParticipant> placementList = new LinkedList<>();
 
     private final List<TournamentParticipant> waitingPool = new CopyOnWriteArrayList<>();
     private final List<TournamentParticipant> participants = new CopyOnWriteArrayList<>();

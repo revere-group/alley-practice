@@ -11,10 +11,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum TournamentType {
-    SOLO("1v1", 1, 32, 4),
-    DUO("2v2", 2, 16, 4),
-    THREE("3v3", 3, 16, 4),
-    FOUR("4v4", 4, 8, 2);
+    SOLO("1v1", 1, 32, 3),
+    DUO("2v2", 2, 16, 3),
+    THREE("3v3", 3, 16, 3),
+    FOUR("4v4", 4, 8, 3);
 
     private final String displayName;
     private final int teamSize;

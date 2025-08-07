@@ -1,6 +1,5 @@
 package dev.revere.alley.feature.tournament.task;
 
-import dev.revere.alley.common.text.CC;
 import dev.revere.alley.feature.tournament.internal.TournamentServiceImpl;
 import dev.revere.alley.feature.tournament.model.Tournament;
 import lombok.Getter;
@@ -11,7 +10,7 @@ import org.bukkit.Sound;
  * @project alley-practice
  * @date 6/08/2025
  */
-public class TournamentRoundStartTask implements Runnable{
+public class TournamentRoundStartTask implements Runnable {
     private final Tournament tournament;
     private final TournamentServiceImpl service;
 
@@ -31,9 +30,9 @@ public class TournamentRoundStartTask implements Runnable{
             return;
         }
 
-        if (countdown <= 3 || countdown % 5 == 0) {
-            String message = CC.translate("&6[Tournament] &aThe next round will begin in &e" + countdown + " &aseconds...");
-            tournament.broadcast(message);
+        if (countdown <= 5 || countdown % 5 == 0) {
+            String message = "&6Round " + tournament.getCurrentRound() + " &fstarts in &6" + countdown + "&f.";
+            service.sendTournamentMessage(tournament, message);
             tournament.getAllPlayers().forEach(player -> player.playSound(player.getLocation(), Sound.NOTE_PLING, 1.0f, 1.2f));
         }
 
