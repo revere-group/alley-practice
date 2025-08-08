@@ -72,7 +72,7 @@ public class AssembleAdapterImpl implements AssembleAdapter {
                 case PLAYING:
                     lines.addAll(this.matchScoreboardImpl.getLines(profile, player));
                     break;
-                case PLAYING_TOURNAMENT:
+                case TOURNAMENT_LOBBY:
                     lines.addAll(this.tournamentScoreboardImpl.getLines(profile));
                     break;
                 case SPECTATING:

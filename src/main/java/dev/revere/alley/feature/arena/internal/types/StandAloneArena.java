@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -144,7 +145,7 @@ public class StandAloneArena extends Arena {
             return;
         }
 
-        org.bukkit.World world = this.getMinimum().getWorld();
+        World world = this.getMinimum().getWorld();
         if (world == null) {
             Bukkit.broadcastMessage("[Arena] Cannot verify - world is null");
             return;
@@ -163,10 +164,10 @@ public class StandAloneArena extends Arena {
         for (int x = min.getBlockX(); x <= max.getBlockX(); x += 10) {
             for (int y = min.getBlockY(); y <= max.getBlockY(); y += 10) {
                 for (int z = min.getBlockZ(); z <= max.getBlockZ(); z += 10) {
-                    org.bukkit.block.Block block = world.getBlockAt(x, y, z);
+                    Block block = world.getBlockAt(x, y, z);
                     totalSampled++;
 
-                    if (block.getType() != org.bukkit.Material.AIR) {
+                    if (block.getType() != Material.AIR) {
                         nonAirBlocks++;
                         if (nonAirBlocks <= 5) {
                             Bukkit.broadcastMessage("[Arena] Found block: " + block.getType() + " at " + x + "," + y + "," + z);

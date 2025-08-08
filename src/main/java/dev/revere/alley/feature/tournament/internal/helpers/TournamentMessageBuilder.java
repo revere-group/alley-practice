@@ -16,8 +16,13 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class TournamentMessageBuilder {
     /**
-     * Generates a natural language message for a participant group joining or leaving.
-     * e.g., "yczu and hmEmmy have joined!"
+     * Generates a broadcast message for a tournament participant.
+     * The message is formatted based on the number of team members.
+     *
+     * @param participant  The tournament participant.
+     * @param verbSingular The verb to use if the participant has one member.
+     * @param verbPlural   The verb to use if the participant has multiple members.
+     * @return A formatted broadcast message.
      */
     public String generateParticipantBroadcast(TournamentParticipant participant, String verbSingular, String verbPlural) {
         String nameList = getNaturalTeamNameListWithProfileColors(participant);
@@ -28,8 +33,12 @@ public class TournamentMessageBuilder {
     }
 
     /**
-     * Creates a natural-language formatted list of team members with a single, uniform color.
-     * e.g., "&eplayer1 &7and &eplayer2"
+     * Creates a natural-language formatted list of team members with a specified color.
+     * e.g., "&cplayer1 &7and &9player2"
+     *
+     * @param participant The tournament participant.
+     * @param nameColor   The color to apply to the names.
+     * @return A formatted string of team member names.
      */
     public String getNaturalTeamNameList(TournamentParticipant participant, String nameColor) {
         List<String> memberNames = participant.getMemberUuids().stream()
@@ -41,8 +50,11 @@ public class TournamentMessageBuilder {
     }
 
     /**
-     * Creates a natural-language formatted list of team members using their individual profile name colors.
+     * Creates a natural-language formatted list of team members with their profile colors.
      * e.g., "&cplayer1 &7and &9player2"
+     *
+     * @param participant The tournament participant.
+     * @return A formatted string of team member names with profile colors.
      */
     public String getNaturalTeamNameListWithProfileColors(TournamentParticipant participant) {
         ProfileService profileService = AlleyPlugin.getInstance().getService(ProfileService.class);
@@ -63,6 +75,14 @@ public class TournamentMessageBuilder {
         return formatColoredNameList(coloredNames);
     }
 
+    /**
+     * Formats a list of names into a natural-language string with a specified color.
+     * Handles singular and plural cases appropriately.
+     *
+     * @param names     The list of names to format.
+     * @param nameColor The color to apply to the names.
+     * @return A formatted string of names.
+     */
     private String formatNameList(List<String> names, String nameColor) {
         int size = names.size();
         if (size == 0) return "An unknown team";
@@ -78,6 +98,13 @@ public class TournamentMessageBuilder {
         }
     }
 
+    /**
+     * Formats a list of colored names into a natural-language string.
+     * Handles singular and plural cases appropriately.
+     *
+     * @param coloredNames The list of colored names to format.
+     * @return A formatted string of colored names.
+     */
     private String formatColoredNameList(List<String> coloredNames) {
         int size = coloredNames.size();
         if (size == 0) return "&fAn unknown team";

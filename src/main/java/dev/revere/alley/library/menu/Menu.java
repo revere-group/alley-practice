@@ -202,7 +202,7 @@ public abstract class Menu {
         ProfileState profileState = AlleyPlugin.getInstance().getService(ProfileService.class).getProfile(player.getUniqueId()).getState();
         if (profileState == ProfileState.PLAYING
                 || profileState == ProfileState.PLAYING_EVENT
-                || profileState == ProfileState.PLAYING_TOURNAMENT
+                || profileState == ProfileState.TOURNAMENT_LOBBY
                 || profileState == ProfileState.FIGHTING_BOT
                 || profileState == ProfileState.FFA) {
             return;

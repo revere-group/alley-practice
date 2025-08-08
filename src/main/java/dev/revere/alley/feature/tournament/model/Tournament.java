@@ -28,21 +28,25 @@ public class Tournament {
     private final int maxTeams;
     private final int minTeams;
     private final String hostName;
-
-    @Setter private TournamentState state;
-    @Setter private int currentRound = 0;
-    @Setter private BukkitTask startingTask;
-    @Setter private BukkitTask broadcastTask;
-    @Setter private BukkitTask inactivityTask;
-    @Setter private BukkitTask roundStartTask;
-
-    @Setter private int initialPlayerCount = 0;
     private final List<TournamentParticipant> placementList = new LinkedList<>();
-
     private final List<TournamentParticipant> waitingPool = new CopyOnWriteArrayList<>();
     private final List<TournamentParticipant> participants = new CopyOnWriteArrayList<>();
     private final List<TournamentParticipant> roundParticipants = new CopyOnWriteArrayList<>();
     private final List<Match> activeMatches = new CopyOnWriteArrayList<>();
+    @Setter
+    private TournamentState state;
+    @Setter
+    private int currentRound = 0;
+    @Setter
+    private BukkitTask startingTask;
+    @Setter
+    private BukkitTask broadcastTask;
+    @Setter
+    private BukkitTask inactivityTask;
+    @Setter
+    private BukkitTask roundStartTask;
+    @Setter
+    private int initialPlayerCount = 0;
 
     public Tournament(int numericId, String hostName, Kit kit, String displayName, int teamSize, int maxTeams, int minTeams) {
         this.tournamentId = UUID.randomUUID();
@@ -55,8 +59,9 @@ public class Tournament {
         this.minTeams = minTeams;
         this.state = TournamentState.WAITING;
     }
+
     public void addToWaitingPool(TournamentParticipant participant) {
-        if (state == TournamentState.WAITING) {
+        if (state == TournamentState.WAITING || state == TournamentState.STARTING) {
             waitingPool.add(participant);
         }
     }
@@ -81,9 +86,10 @@ public class Tournament {
     }
 
     public List<Player> getAllPlayers() {
-        List<TournamentParticipant> sourceList = (state == TournamentState.WAITING || state == TournamentState.STARTING) ? waitingPool : participants;
+        List<TournamentParticipant> sourceList =
+                (state == TournamentState.WAITING || state == TournamentState.STARTING) ? waitingPool : participants;
         return sourceList.stream()
-                .flatMap(p -> p.getOnlinePlayers().stream())
+                .flatMap(participant -> participant.getOnlinePlayers().stream())
                 .collect(Collectors.toList());
     }
 

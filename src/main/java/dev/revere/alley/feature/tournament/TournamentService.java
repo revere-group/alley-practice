@@ -5,8 +5,6 @@ import dev.revere.alley.feature.kit.Kit;
 import dev.revere.alley.feature.match.Match;
 import dev.revere.alley.feature.tournament.model.Tournament;
 import dev.revere.alley.feature.tournament.model.TournamentType;
-import dev.revere.alley.feature.tournament.task.TournamentRoundStartTask;
-import dev.revere.alley.feature.tournament.task.TournamentStartTask;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -30,7 +28,8 @@ public interface TournamentService extends Service {
 
     /**
      * Allows an admin to host a new tournament without restrictions.
-     * This method bypasses the hosting cooldown and uses custom team size and max teams.
+     * This method bypasses the hosting cooldown and uses custom team size and
+     * max teams.
      *
      * @param host     The admin player hosting the tournament.
      * @param kit      The kit to be used in the tournament matches.
@@ -48,7 +47,8 @@ public interface TournamentService extends Service {
     void joinTournament(Player player, Tournament tournament);
 
     /**
-     * Handles a player leaving the tournament, either during the waiting phase or mid-match.
+     * Handles a player leaving the tournament, either during the waiting phase
+     * or mid-match.
      *
      * @param player The player who is departing.
      */
@@ -63,15 +63,16 @@ public interface TournamentService extends Service {
     void handleMatchEnd(Match match);
 
     /**
-     * Forcibly starts a tournament if enough players have joined,
-     * bypassing the need for a full lobby.
+     * Forcibly starts a tournament if enough players have joined, bypassing the
+     * need for a full lobby.
      *
      * @param tournament The tournament to force start.
      */
     void forceStartTournament(Tournament tournament);
 
     /**
-     * Immediately cancels a tournament, notifying all participants and cleaning up resources.
+     * Immediately cancels a tournament, notifying all participants and cleaning
+     * up resources.
      *
      * @param tournament The tournament to cancel.
      * @param reason     The reason for the cancellation.
@@ -100,18 +101,4 @@ public interface TournamentService extends Service {
      * @return A list of all active Tournament objects.
      */
     List<Tournament> getTournaments();
-
-    /**
-     * Returns the currently active tournament start task instance.
-     *
-     * @return The TournamentStartTask, or null if none is running.
-     */
-    TournamentStartTask getTournamentStartTask();
-
-    /**
-     * Returns the currently active tournament round start task instance.
-     *
-     * @return The TournamentRoundStartTask, or null if none is running.
-     */
-    TournamentRoundStartTask getTournamentRoundStartTask();
 }

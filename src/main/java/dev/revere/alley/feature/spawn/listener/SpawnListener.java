@@ -5,7 +5,6 @@ import dev.revere.alley.core.profile.ProfileService;
 import dev.revere.alley.core.profile.Profile;
 import dev.revere.alley.core.profile.enums.ProfileState;
 import dev.revere.alley.feature.tournament.model.Tournament;
-import dev.revere.alley.feature.tournament.model.TournamentState;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -152,8 +151,6 @@ public class SpawnListener implements Listener {
     private boolean validateTournament(Profile profile) {
         Tournament tournament = profile.getTournament();
 
-        return tournament != null &&
-                profile.getState().equals(ProfileState.PLAYING_TOURNAMENT) &&
-                (tournament.getState() == TournamentState.STARTING || tournament.getState() == TournamentState.WAITING);
+        return tournament != null && profile.getState().equals(ProfileState.TOURNAMENT_LOBBY);
     }
 }
