@@ -1,5 +1,6 @@
 package dev.revere.alley.feature.match.command.player;
 
+import dev.revere.alley.common.text.CC;
 import dev.revere.alley.core.locale.internal.impl.message.GlobalMessagesLocaleImpl;
 import dev.revere.alley.core.profile.Profile;
 import dev.revere.alley.core.profile.ProfileService;
@@ -38,14 +39,25 @@ public class SpectateCommand extends BaseCommand {
             return;
         }
 
+        if (player.equals(target)) {
+            player.sendMessage(CC.translate("&cYou cannot spectate yourself."));
+            return;
+        }
+
         ProfileService profileService = this.plugin.getService(ProfileService.class);
         Profile profile = profileService.getProfile(player.getUniqueId());
-        if (profile.getState() != ProfileState.LOBBY) {
+        if (profile.getState() != ProfileState.LOBBY && profile.getState() != ProfileState.PLAYING_TOURNAMENT) {
             player.sendMessage(this.getString(GlobalMessagesLocaleImpl.ERROR_YOU_MUST_BE_IN_LOBBY));
             return;
         }
 
         Profile targetProfile = this.plugin.getService(ProfileService.class).getProfile(target.getUniqueId());
+
+        if (targetProfile.getFfaMatch() != null && profile.getState() == ProfileState.PLAYING_TOURNAMENT) {
+            player.sendMessage(CC.translate("&cYou can not spectate whilst in a tournament.")); // todo: make these messages configurable
+            return;
+        }
+
         if (targetProfile.getFfaMatch() != null) {
             targetProfile.getFfaMatch().addSpectator(player);
             return;
@@ -56,8 +68,10 @@ public class SpectateCommand extends BaseCommand {
                     .replace("{name-color}", String.valueOf(targetProfile.getNameColor()))
                     .replace("{player}", target.getName()));
             return;
+        } else if (targetProfile.getMatch() != null) {
+            targetProfile.getMatch().addSpectator(player);
+        } else {
+            player.sendMessage(CC.translate("&cYou are unable to spectate that player."));
         }
-
-        targetProfile.getMatch().addSpectator(player);
     }
 }

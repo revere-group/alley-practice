@@ -124,6 +124,15 @@ public class Profile {
     }
 
     /**
+     * Checks if the profile is currently in a tournament.
+     *
+     * @return True if the profile is in a tournament, otherwise false.
+     */
+    public boolean inTournament() {
+        return this.tournament != null;
+    }
+
+    /**
      * Checks if the profile is in the lobby or in a queue.
      *
      * @return True if the profile is in the lobby or in a queue, otherwise false.

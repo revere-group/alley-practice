@@ -249,7 +249,8 @@ public class TournamentCommand extends BaseCommand {
 
         List<Tournament> joinable =
                 tournamentService.getTournaments().stream()
-                        .filter(t -> t.getState() == TournamentState.WAITING)
+                        .filter(tournament -> tournament.getState() == TournamentState.WAITING
+                                || tournament.getState() == TournamentState.STARTING)
                         .collect(Collectors.toList());
 
         if (joinable.isEmpty()) {

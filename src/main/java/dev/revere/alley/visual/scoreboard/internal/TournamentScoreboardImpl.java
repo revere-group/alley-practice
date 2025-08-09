@@ -40,11 +40,10 @@ public class TournamentScoreboardImpl implements Scoreboard {
                 path = "scoreboard.lines.tournament.starting";
                 break;
             case IN_PROGRESS:
-                if (tournament.getActiveMatches().isEmpty()) {
-                    path = "scoreboard.lines.tournament.in-progress-waiting";
-                } else {
-                    path = "scoreboard.lines.tournament.in-progress";
-                }
+                path = "scoreboard.lines.tournament.in-progress";
+                break;
+            case INTERMISSION:
+                path = "scoreboard.lines.tournament.intermission";
                 break;
             case WAITING:
             default:

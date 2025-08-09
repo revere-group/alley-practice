@@ -45,7 +45,7 @@ public class TournamentBroadcasterImpl implements TournamentBroadcaster {
     @Override
     public void broadcastResults(Tournament tournament, TournamentPlacements placements) {
         Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage(CC.translate("&6&lTournament"));
+        Bukkit.broadcastMessage(CC.translate("&6&lTournament &7(" + tournament.getDisplayName() + ")"));
         Bukkit.broadcastMessage(
                 CC.translate(
                         " &6│ &f"

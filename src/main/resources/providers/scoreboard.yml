@@ -99,7 +99,7 @@ scoreboard:
         - "&6&l│ &rRound: &6#{tournament_round}"
         - ""
         - "&fWaiting for your next match..."
-      in-progress-waiting:
+      intermission:
         - "{sidebar}"
         - "&6&lTournament &7({tournament_type})"
         - "&6&l│ &rKit: &6{tournament_kit}"
@@ -107,7 +107,7 @@ scoreboard:
         - "&6&l│ &rPlayers: &6{tournament_players}&f/&6{tournament_max_players}"
         - "&6&l│ &rRound: &6#{tournament_round}"
         - ""
-        - "&fNext round in {round_countdown}s..."
+        - "&aNext round in {round_countdown}s..."
     party:
       - "{sidebar}"
       - "&6&lLobby"

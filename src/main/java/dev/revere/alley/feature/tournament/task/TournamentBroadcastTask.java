@@ -58,7 +58,7 @@ public class TournamentBroadcastTask implements Runnable {
 
         TextComponent title =
                 new TextComponent(
-                        CC.translate("&6Tournament &7(" + tournament.getDisplayName() + ")"));
+                        CC.translate("&6&lTournament &7(" + tournament.getDisplayName() + ")"));
 
         TextComponent typeComponent =
                 new TextComponent(
