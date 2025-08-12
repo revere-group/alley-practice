@@ -1,10 +1,15 @@
 package dev.revere.alley.visual.scoreboard.internal;
 
 import dev.revere.alley.AlleyPlugin;
+import dev.revere.alley.adapter.core.CoreAdapter;
 import dev.revere.alley.common.text.CC;
 import dev.revere.alley.common.tournament.RoundStageUtil;
 import dev.revere.alley.core.config.ConfigService;
 import dev.revere.alley.core.profile.Profile;
+import dev.revere.alley.core.profile.ProfileService;
+import dev.revere.alley.core.profile.enums.ProfileState;
+import dev.revere.alley.feature.level.LevelService;
+import dev.revere.alley.feature.level.data.LevelData;
 import dev.revere.alley.feature.tournament.model.Tournament;
 import dev.revere.alley.feature.tournament.model.TournamentParticipant;
 import dev.revere.alley.feature.tournament.model.TournamentState;
@@ -12,6 +17,7 @@ import dev.revere.alley.feature.tournament.task.TournamentCountdownService;
 import dev.revere.alley.feature.tournament.task.TournamentRoundStartTask;
 import dev.revere.alley.feature.tournament.task.TournamentStartTask;
 import dev.revere.alley.visual.scoreboard.Scoreboard;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
@@ -53,7 +59,7 @@ public class TournamentScoreboardImpl implements Scoreboard {
 
         List<String> template = configService.getScoreboardConfig().getStringList(path);
         return template.stream()
-                .map(line -> replacePlaceholders(line, tournament))
+                .map(line -> replacePlaceholders(line, tournament, profile))
                 .collect(Collectors.toList());
     }
 
@@ -62,7 +68,13 @@ public class TournamentScoreboardImpl implements Scoreboard {
         return getLines(profile);
     }
 
-    private String replacePlaceholders(String line, Tournament tournament) {
+    private String replacePlaceholders(String line, Tournament tournament, Profile profile) {
+        ProfileService profileService = AlleyPlugin.getInstance().getService(ProfileService.class);
+        LevelService levelService = AlleyPlugin.getInstance().getService(LevelService.class);
+        CoreAdapter coreAdapter = AlleyPlugin.getInstance().getService(CoreAdapter.class);
+
+        int currentElo = profile.getProfileData().getElo();
+        LevelData currentLevel = levelService.getLevel(currentElo);
         int currentPlayers = tournament.getWaitingPool().stream().mapToInt(TournamentParticipant::getSize).sum();
         int maxPlayers = tournament.getMaxTeams() * tournament.getTeamSize();
 
@@ -71,6 +83,15 @@ public class TournamentScoreboardImpl implements Scoreboard {
 
         String processed =
                 CC.translate(line)
+                        .replace("{online}", String.valueOf(Bukkit.getOnlinePlayers().size()))
+                        .replace("{wins}", String.valueOf(profile.getProfileData().getTotalWins()))
+                        .replace("{level}", currentLevel.getDisplayName())
+                        .replace("{level_progress_bar}", levelService.getProgressBar(currentElo))
+                        .replace("{level_progress_details}", levelService.getProgressDetails(currentElo))
+                        .replace("{rank}", coreAdapter.getCore().getRankColor(Bukkit.getPlayer(profile.getUuid())) + coreAdapter.getCore().getRankName(Bukkit.getPlayer(profile.getUuid())))
+                        .replace("{playing}", String.valueOf(safeCountState(profileService, ProfileState.PLAYING)))
+                        .replace("{in-queue}", String.valueOf(safeCountState(profileService, ProfileState.WAITING)))
+                        .replace("{dot-animation}", this.getDotAnimation().getCurrentFrame())
                         .replace("{tournament_type}", tournament.getDisplayName())
                         .replace("{tournament_host}", tournament.getHostName())
                         .replace("{tournament_kit}", tournament.getKit().getDisplayName())
