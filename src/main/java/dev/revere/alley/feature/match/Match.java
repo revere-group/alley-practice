@@ -41,6 +41,7 @@ import dev.revere.alley.feature.match.internal.types.RoundsMatch;
 import dev.revere.alley.feature.match.model.GameParticipant;
 import dev.revere.alley.feature.match.model.GamePlayer;
 import dev.revere.alley.feature.match.model.MatchGamePlayerData;
+import dev.revere.alley.feature.match.model.TeamGameParticipant;
 import dev.revere.alley.feature.match.model.internal.MatchGamePlayer;
 import dev.revere.alley.feature.match.snapshot.Snapshot;
 import dev.revere.alley.feature.match.snapshot.SnapshotService;
@@ -224,6 +225,16 @@ public abstract class Match {
                     .filter(Objects::nonNull)
                     .forEach(nametagService::updatePlayerState);
         });
+    }
+
+    /**
+     * Helper method to update the nametag of a specific participant.
+     *
+     * @param player The player to update the nametag of.
+     */
+    private void updateParticipantNametag(Player player) {
+        NametagService nametagService = this.plugin.getService(NametagService.class);
+        nametagService.updatePlayerState(player);
     }
 
     /**
@@ -436,6 +447,7 @@ public abstract class Match {
         }
 
         if (handleSpectator(player, victimProfile, participant)) {
+            gamePlayer.setEliminated(true);
             if (killer != null) {
                 this.handleDeathEffects(player, killer);
             }
@@ -503,17 +515,27 @@ public abstract class Match {
             return false;
         }
 
-        return this.shouldBecomeSpectatorForEliminationKit(participant, matchKit, player) || shouldBecomeSpectatorForNonRoundKit(participant, matchKit);
-    }
-
-    private boolean shouldBecomeSpectatorForEliminationKit(GameParticipant<MatchGamePlayer> participant, Kit matchKit, Player player) {
-        if (!participant.isAllEliminated() && this.hasEliminationBasedKit(matchKit)) {
-            MatchGamePlayer gamePlayer = this.getGamePlayer(player);
-            return gamePlayer.isEliminated();
+        if (this.shouldSpectateEliminationKit(participant, matchKit, gamePlayer)) {
+            return true;
         }
-        return false;
+
+        return shouldBecomeSpectatorForNonRoundKit(participant, matchKit);
     }
 
+    /**
+     * True when this player is out (eliminated or entire side is out on elimination kits), e.g. bed broken or out of lives.
+     */
+    private boolean shouldSpectateEliminationKit(GameParticipant<MatchGamePlayer> participant, Kit matchKit, MatchGamePlayer gamePlayer) {
+        if (!this.hasEliminationBasedKit(matchKit)) {
+            return false;
+        }
+        return gamePlayer.isEliminated() || participant.isAllEliminated();
+    }
+
+    /**
+     * Default-style matches: any death removes you from play (spectator) while teammates can still fight.
+     * Round-based and elimination-kit modes use respawns / delayed elimination instead.
+     */
     private boolean shouldBecomeSpectatorForNonRoundKit(GameParticipant<MatchGamePlayer> participant, Kit matchKit) {
         return !participant.isAllDead() && !this.isRoundBasedKit(matchKit) && !this.hasEliminationBasedKit(matchKit);
     }
@@ -810,6 +832,122 @@ public abstract class Match {
         snapshot.setWTaps(gamePlayer.getData().getWTaps());
 
         this.snapshots.add(snapshot);
+    }
+
+    /**
+     * Handles the revival of a player.
+     *
+     * @param player The player to revive.
+     * @param silent Whether the revived message should be sent to the player.
+     */
+    public void revivePlayer(Player player, boolean silent) {
+        if (player == null) return;
+
+        MatchGamePlayer gamePlayer = this.getFromAllGamePlayers(player);
+        if (gamePlayer == null || gamePlayer.isDisconnected()) {
+            return;
+        }
+
+        Profile profile = this.plugin.getService(ProfileService.class).getProfile(player.getUniqueId());
+        boolean wasSpectatingEliminatedParticipant = profile.getState() == ProfileState.SPECTATING && this.getSpectators().contains(player.getUniqueId());
+        if (!gamePlayer.isEliminated() && !wasSpectatingEliminatedParticipant) {
+            return;
+        }
+
+        gamePlayer.setEliminated(false);
+        gamePlayer.setDead(false);
+        profile.setState(ProfileState.PLAYING);
+        if (wasSpectatingEliminatedParticipant) {
+            this.getSpectators().remove(player.getUniqueId());
+        }
+
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setAllowFlight(false);
+        player.setFlying(false);
+
+        
+        this.registerHealthObjectiveForPlayer(player);
+        this.setupPlayer(player);
+
+        this.plugin.getService(NametagService.class).updatePlayerState(player);
+        this.plugin.getService(KnockbackAdapter.class).getKnockbackImplementation().applyKnockback(player, getKit().getKnockbackProfile());
+        this.plugin.getService(VisibilityService.class).updateVisibility(player);
+
+        if (!silent) {
+            notifyAll(CC.translate("&a" + player.getName() + " &ahas been revived."));
+        }
+    }
+
+    /**
+     * Pulls a lobby player into this match, joining the same team as the target participant.
+     * If {@code newTeam} is true (FFA-only), a brand-new participant is created instead.
+     *
+     * @param player  The player to pull in. Must be in {@link ProfileState#LOBBY}.
+     * @param target  A player already in this match whose team the pulled player will join.
+     * @param newTeam If true, create a new participant for the player (only valid for FFA matches).
+     * @return true if the pull succeeded, false if any guard condition was not met.
+     */
+    public boolean pullPlayerIntoMatch(Player player, Player target, boolean newTeam) {
+        if (player == null || target == null) return false;
+        if (this.getState() == MatchState.ENDING_MATCH || this.getState() == MatchState.ENDING_ROUND) return false;
+        if (newTeam && this.rejectsNewTeamPull()) return false;
+
+        Profile playerProfile = this.plugin.getService(ProfileService.class).getProfile(player.getUniqueId());
+        if (playerProfile == null || playerProfile.getState() != ProfileState.LOBBY) return false;
+
+        if (this.getFromAllGamePlayers(player) != null || this.spectators.contains(player.getUniqueId())) return false;
+
+        GameParticipant<MatchGamePlayer> targetParticipant = this.getParticipants().stream()
+                .filter(p -> p.containsPlayer(target.getUniqueId()))
+                .findFirst()
+                .orElse(null);
+        if (targetParticipant == null) return false;
+
+        MatchGamePlayer newGamePlayer = new MatchGamePlayer(player.getUniqueId(), player.getName());
+
+        if (newTeam) {
+            this.getParticipants().add(new GameParticipant<>(newGamePlayer));
+        } else if (targetParticipant instanceof TeamGameParticipant) {
+            targetParticipant.addPlayer(newGamePlayer);
+        } else {
+            TeamGameParticipant<MatchGamePlayer> upgraded = new TeamGameParticipant<>(targetParticipant.getLeader());
+            upgraded.addPlayer(newGamePlayer);
+            this.replaceParticipant(targetParticipant, upgraded);
+        }
+
+        playerProfile.setState(ProfileState.PLAYING);
+        playerProfile.setMatch(this);
+
+        this.setupPlayer(player);
+        this.registerHealthObjectiveForPlayer(player);
+        this.plugin.getService(VisibilityService.class).updateVisibility(player);
+        this.plugin.getService(KnockbackAdapter.class).getKnockbackImplementation().applyKnockback(player, getKit().getKnockbackProfile());
+        this.plugin.getService(NametagService.class).updatePlayerState(player);
+
+        return true;
+    }
+
+    /**
+     * Replaces a solo {@link GameParticipant} with a {@link TeamGameParticipant} that holds the same
+     * leader plus any newly added players. Subclasses must override this if they store participants
+     * in named fields (e.g. {@code participantA}/{@code participantB}).
+     *
+     * @param old         The participant to replace.
+     * @param replacement The upgraded team participant.
+     */
+    protected void replaceParticipant(GameParticipant<MatchGamePlayer> old, TeamGameParticipant<MatchGamePlayer> replacement) {
+        // no-op by default; overridden by DefaultMatch and FFAMatch
+    }
+
+    /**
+     * Returns whether this match type rejects creating a brand-new participant via
+     * {@link #pullPlayerIntoMatch} when {@code newTeam} is {@code true}.
+     * Returns {@code false} only in FFA matches.
+     *
+     * @return true if a new team pull is not permitted for this match type.
+     */
+    public boolean rejectsNewTeamPull() {
+        return true;
     }
 
     /**

@@ -12,7 +12,6 @@ import dev.revere.alley.feature.kit.Kit;
 import dev.revere.alley.feature.match.model.GameParticipant;
 import dev.revere.alley.feature.match.model.internal.MatchGamePlayer;
 import dev.revere.alley.feature.queue.Queue;
-import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -27,10 +26,7 @@ import java.util.List;
  * @project Alley
  * @since 21/05/2025
  */
-@Getter
 public class BedMatch extends DefaultMatch {
-    private final GameParticipant<MatchGamePlayer> participantA;
-    private final GameParticipant<MatchGamePlayer> participantB;
 
     /**
      * Constructor for the MatchBedImpl class.
@@ -44,20 +40,18 @@ public class BedMatch extends DefaultMatch {
      */
     public BedMatch(Queue queue, Kit kit, Arena arena, boolean ranked, GameParticipant<MatchGamePlayer> participantA, GameParticipant<MatchGamePlayer> participantB) {
         super(queue, kit, arena, ranked, participantA, participantB);
-        this.participantA = participantA;
-        this.participantB = participantB;
     }
 
     @Override
     public boolean canEndRound() {
-        return (this.participantA.isAllEliminated() || this.participantB.isAllEliminated())
-                || (this.participantA.getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected)
-                || this.participantB.getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected));
+        return (this.getParticipantA().isAllEliminated() || this.getParticipantB().isAllEliminated())
+                || (this.getParticipantA().getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected)
+                || this.getParticipantB().getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected));
     }
 
     @Override
     public boolean canStartRound() {
-        return !this.participantA.isAllEliminated() && !this.participantB.isAllEliminated();
+        return !this.getParticipantA().isAllEliminated() && !this.getParticipantB().isAllEliminated();
     }
 
     @Override
@@ -80,9 +74,9 @@ public class BedMatch extends DefaultMatch {
 
     @Override
     public void handleDeathItemDrop(Player player, PlayerDeathEvent event) {
-        GameParticipant<MatchGamePlayer> participant = this.participantA.containsPlayer(player.getUniqueId())
-                ? this.participantA
-                : this.participantB;
+        GameParticipant<MatchGamePlayer> participant = this.getParticipantA().containsPlayer(player.getUniqueId())
+                ? this.getParticipantA()
+                : this.getParticipantB();
 
         if (participant.isBedBroken()) {
             ListenerUtil.clearDroppedItemsOnDeath(event, player);
@@ -125,8 +119,8 @@ public class BedMatch extends DefaultMatch {
             int fadeOut = localeService.getInt(VisualsLocaleImpl.TITLE_MATCH_BED_DESTROYED_FADEOUT);
 
             opponentParticipant.getPlayers().forEach(matchGamePlayer -> {
-                Player player = this.plugin.getServer().getPlayer(matchGamePlayer.getUuid());
-                titleService.sendTitle(player, bedDestroyedHeader, bedDestroyedFooter, fadeIn, stay, fadeOut);
+                Player p = this.plugin.getServer().getPlayer(matchGamePlayer.getUuid());
+                titleService.sendTitle(p, bedDestroyedHeader, bedDestroyedFooter, fadeIn, stay, fadeOut);
             });
         }
 

@@ -15,8 +15,6 @@ import org.bukkit.entity.Player;
  * @date 25/06/2025
  */
 public class CheckpointMatch extends DefaultMatch {
-    private final GameParticipant<MatchGamePlayer> participantA;
-    private final GameParticipant<MatchGamePlayer> participantB;
 
     /**
      * Constructor for the MatchRegularImpl class.
@@ -30,15 +28,13 @@ public class CheckpointMatch extends DefaultMatch {
      */
     public CheckpointMatch(Queue queue, Kit kit, Arena arena, boolean ranked, GameParticipant<MatchGamePlayer> participantA, GameParticipant<MatchGamePlayer> participantB) {
         super(queue, kit, arena, ranked, participantA, participantB);
-        this.participantA = participantA;
-        this.participantB = participantB;
     }
 
     @Override
     public boolean canEndRound() {
-        return ((this.participantA.isLostCheckpoint() && this.participantA.isAllDead()) || (this.participantB.isLostCheckpoint() && this.participantB.isAllDead()))
-                || (this.participantA.getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected)
-                || this.participantB.getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected));
+        return ((this.getParticipantA().isLostCheckpoint() && this.getParticipantA().isAllDead()) || (this.getParticipantB().isLostCheckpoint() && this.getParticipantB().isAllDead()))
+                || (this.getParticipantA().getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected)
+                || this.getParticipantB().getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected));
     }
 
     @Override
@@ -49,7 +45,7 @@ public class CheckpointMatch extends DefaultMatch {
 
         Location checkpoint = gamePlayer.getCheckpoint();
         if (checkpoint == null) {
-            checkpoint = this.participantA.containsPlayer(player.getUniqueId()) ? getArena().getPos1() : getArena().getPos2();
+            checkpoint = this.getParticipantA().containsPlayer(player.getUniqueId()) ? getArena().getPos1() : getArena().getPos2();
         }
 
         player.teleport(checkpoint);

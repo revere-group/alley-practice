@@ -13,6 +13,7 @@ import dev.revere.alley.feature.kit.Kit;
 import dev.revere.alley.feature.kit.setting.types.mechanic.KitSettingDropItemsImpl;
 import dev.revere.alley.feature.match.Match;
 import dev.revere.alley.feature.match.model.GameParticipant;
+import dev.revere.alley.feature.match.model.TeamGameParticipant;
 import dev.revere.alley.feature.match.model.internal.MatchGamePlayer;
 import dev.revere.alley.feature.match.snapshot.Snapshot;
 import dev.revere.alley.feature.queue.Queue;
@@ -84,6 +85,19 @@ public class FFAMatch extends Match {
     @Override
     public List<GameParticipant<MatchGamePlayer>> getParticipants() {
         return this.participants;
+    }
+
+    @Override
+    public boolean rejectsNewTeamPull() {
+        return false;
+    }
+
+    @Override
+    protected void replaceParticipant(GameParticipant<MatchGamePlayer> old, TeamGameParticipant<MatchGamePlayer> replacement) {
+        int index = this.participants.indexOf(old);
+        if (index >= 0) {
+            this.participants.set(index, replacement);
+        }
     }
 
     @Override

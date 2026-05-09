@@ -7,7 +7,6 @@ import dev.revere.alley.feature.match.model.GameParticipant;
 import dev.revere.alley.feature.match.model.MatchGamePlayerData;
 import dev.revere.alley.feature.match.model.internal.MatchGamePlayer;
 import dev.revere.alley.feature.queue.Queue;
-import lombok.Getter;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -16,10 +15,7 @@ import org.bukkit.entity.Player;
  * @project Alley
  * @date 5/21/2024
  */
-@Getter
 public class LivesMatch extends DefaultMatch {
-    private final GameParticipant<MatchGamePlayer> participantA;
-    private final GameParticipant<MatchGamePlayer> participantB;
 
     /**
      * Constructor for the MatchLivesImpl class.
@@ -33,20 +29,18 @@ public class LivesMatch extends DefaultMatch {
      */
     public LivesMatch(Queue queue, Kit kit, Arena arena, boolean ranked, GameParticipant<MatchGamePlayer> participantA, GameParticipant<MatchGamePlayer> participantB) {
         super(queue, kit, arena, ranked, participantA, participantB);
-        this.participantA = participantA;
-        this.participantB = participantB;
     }
 
     @Override
     public boolean canStartRound() {
-        return participantA.getLeader().getData().getLives() > 0 && participantB.getLeader().getData().getLives() > 0;
+        return getParticipantA().getLeader().getData().getLives() > 0 && getParticipantB().getLeader().getData().getLives() > 0;
     }
 
     @Override
     public boolean canEndRound() {
-        return (participantA.isAllEliminated() || participantB.isAllEliminated())
-                || (this.participantA.getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected)
-                || this.participantB.getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected));
+        return (getParticipantA().isAllEliminated() || getParticipantB().isAllEliminated())
+                || (this.getParticipantA().getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected)
+                || this.getParticipantB().getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected));
     }
 
     @Override

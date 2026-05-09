@@ -29,6 +29,7 @@ import dev.revere.alley.feature.match.MatchState;
 import dev.revere.alley.feature.match.model.BaseRaiderRole;
 import dev.revere.alley.feature.match.model.GameParticipant;
 import dev.revere.alley.feature.match.model.MatchGamePlayerData;
+import dev.revere.alley.feature.match.model.TeamGameParticipant;
 import dev.revere.alley.feature.match.model.internal.MatchGamePlayer;
 import dev.revere.alley.feature.match.utility.MatchUtility;
 import dev.revere.alley.feature.queue.Queue;
@@ -52,8 +53,8 @@ import java.util.List;
 @Getter
 @Setter
 public class DefaultMatch extends Match {
-    private final GameParticipant<MatchGamePlayer> participantA;
-    private final GameParticipant<MatchGamePlayer> participantB;
+    private GameParticipant<MatchGamePlayer> participantA;
+    private GameParticipant<MatchGamePlayer> participantB;
 
     public final ChatColor teamAColor;
     public final ChatColor teamBColor;
@@ -95,6 +96,15 @@ public class DefaultMatch extends Match {
     @Override
     public List<GameParticipant<MatchGamePlayer>> getParticipants() {
         return Arrays.asList(getParticipantA(), getParticipantB());
+    }
+
+    @Override
+    protected void replaceParticipant(GameParticipant<MatchGamePlayer> old, TeamGameParticipant<MatchGamePlayer> replacement) {
+        if (this.participantA == old) {
+            this.participantA = replacement;
+        } else if (this.participantB == old) {
+            this.participantB = replacement;
+        }
     }
 
     /**
