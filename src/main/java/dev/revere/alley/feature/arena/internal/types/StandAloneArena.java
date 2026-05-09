@@ -226,9 +226,14 @@ public class StandAloneArena extends Arena {
             newTeam2Portal = targetLocation.clone().add(offsetX, offsetY, offsetZ);
         }
 
+        int yOffset = newMin.getBlockY() - actualMinY;
+
+        int adjustedHeightLimit = this.heightLimit + yOffset;
+        int adjustedVoidLevel = this.voidLevel + yOffset;
+
         StandAloneArena copiedArena = new StandAloneArena(
                 this.getName(), copyId, newMin, newMax,
-                newTeam1Portal, newTeam2Portal, this.heightLimit, this.voidLevel
+                newTeam1Portal, newTeam2Portal, adjustedHeightLimit, adjustedVoidLevel
         );
 
         copiedArena.setEnabled(true);

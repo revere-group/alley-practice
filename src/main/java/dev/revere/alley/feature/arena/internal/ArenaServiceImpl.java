@@ -284,7 +284,6 @@ public class ArenaServiceImpl implements ArenaService {
         }
 
         StandAloneArena copiedArena = originalArena.createCopy(temporaryWorld, copyLocation, copyId);
-        copiedArena.setHeightLimit(copiedArena.getPos1().getBlockY() + copiedArena.getHeightLimit());
 
         this.arenaSchematicService.paste(copyLocation, this.arenaSchematicService.getSchematicFile(originalArena.getName()));
         this.temporaryArenas.add(copiedArena);
