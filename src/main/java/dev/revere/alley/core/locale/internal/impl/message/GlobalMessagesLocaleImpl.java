@@ -185,9 +185,9 @@ public enum GlobalMessagesLocaleImpl implements LocaleEntry {
     JOIN_MESSAGE_CHAT_MESSAGE_LIST("messages/global-messages.yml", "join-message.message", Arrays.asList(
             "",
             "&6&lAlley Practice Core",
-            " &6&l│ &rWebsite: &6revere.dev",
+            " &6&l│ &rWebsite: &6revere.no",
             " &6&l│ &rDiscord: &6discord.gg/p3R5qhfWAx",
-            " &6&l│ &rGitHub: &6github.com/RevereInc/alley-practice",
+            " &6&l│ &rGitHub: &6github.com/revere-group/alley-practice",
             "",
             "&6&lMade by &f{author} &7(v{version})",
             ""

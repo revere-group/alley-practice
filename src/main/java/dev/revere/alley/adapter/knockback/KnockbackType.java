@@ -9,8 +9,8 @@ import lombok.Getter;
  */
 @Getter
 public enum KnockbackType {
-    DEFAULT("Default", "Revere Incorporate"),
-    ZONE("ZoneSpigot", "Revere Incorporate"),
+    DEFAULT("Default", "Revere Group"),
+    ZONE("ZoneSpigot", "Revere Group"),
 
     ;
 

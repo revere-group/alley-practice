@@ -14,14 +14,19 @@
 
     <developers>
         <developer>
+            <id>hamza</id>
+            <name>Hamza</name>
+            <email>hamza@revere.no</email>
+        </developer>
+        <developer>
             <id>remi</id>
             <name>Remi</name>
-            <email>remi@revere.dev</email>
+            <email>remi@revere.no</email>
         </developer>
         <developer>
             <id>emmy</id>
             <name>Emmy</name>
-            <email>emmy@revere.dev</email>
+            <email>emmy@revere.no</email>
         </developer>
     </developers>
 

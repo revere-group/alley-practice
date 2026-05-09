@@ -20,17 +20,17 @@ import java.util.concurrent.TimeUnit;
 /**
  * Alley – A modern, modular Practice PvP core built from the ground up for Minecraft 1.8.
  * <p>
- * Developed by Revere Inc., Alley focuses on clean, professional, and readable code,
+ * Developed by Revere Group., Alley focuses on clean, professional, and readable code,
  * making it easy for developers to jump into practice PvP development with minimal friction.
  * </p>
  * <p>
  * Alley is open source under the terms described in the README:
- * <a href="https://github.com/RevereInc/alley-practice">GitHub Repository</a>
+ * <a href="https://github.com/revere-group/alley-practice">GitHub Repository</a>
  * </p>
  *
- * @author Emmy, Remi
+ * @author Emmy, Remi, Hamza
  * @version 2.0 — Complete recode (entirely rewritten from scratch)
- * @see <a href="https://revere.dev">revere.dev</a>
+ * @see <a href="https://revere.no">revere.no</a>
  * @see <a href="https://discord.gg/revere">Discord Support</a>
  * @since 19/04/2024
  */

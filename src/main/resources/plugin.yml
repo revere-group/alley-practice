@@ -1,7 +1,7 @@
 name: Alley
 version: '${project.version}'
 main: dev.revere.alley.AlleyPlugin
-authors: [ "Emmy", "Remi" ]
+authors: [ "Remi", "Hamza", "Emmy" ]
 description: '${project.description}'
 website: https://discord.gg/revere
 softDepend:

@@ -24,7 +24,7 @@ public class UpdaterServiceImpl implements UpdaterService {
     private final LocaleService localeService;
     private final String currentVersion;
 
-    private final String githubRepo = "RevereInc/alley-practice";
+    private final String githubRepo = "revere-group/alley-practice";
     private String latestVersion;
 
     /**

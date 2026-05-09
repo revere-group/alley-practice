@@ -35,7 +35,7 @@ public class AlleyCommand extends BaseCommand {
 
     @CommandData(
             name = "alley",
-            aliases = {"apractice", "aprac", "practice", "prac", "emmy", "remi", "revere"},
+            aliases = {"apractice", "aprac", "practice", "prac", "hamza", "emmy", "remi", "revere"},
             inGameOnly = false,
             usage = "alley",
             description = "Displays information about the plugin."
@@ -48,7 +48,7 @@ public class AlleyCommand extends BaseCommand {
                 "",
                 "     &6&lAlley Practice",
                 "      &6&l│ &fCreated by: &6Emmy &7(github.com/hmEmmy)",
-                "      &6&l│ &fMaintained by: &6Revere Inc. &7(github.com/RevereInc)",
+                "      &6&l│ &fMaintained by: &6Revere Group. &7(github.com/revere-group)",
                 "      &6&l│ &fPrimary Contributors: &6" + this.plugin.getDescription().getAuthors().toString().replace("[", "").replace("]", "").replace(",", "&7,&6"),
                 "",
                 "      &6&l│ &fLicense: &6CC BY-NC-SA 4.0",
@@ -65,7 +65,7 @@ public class AlleyCommand extends BaseCommand {
 
     private @NotNull TextComponent createLinkComponent() {
         TextComponent repositoryComponent = ClickableUtil.createLinkComponent("&f&l[GITHUB]", "https://github.com/hmEmmy/alley-practice", "&aClick to open the GitHub repository.");
-        TextComponent discordComponent = ClickableUtil.createLinkComponent("&9&l[DISCORD]", "https://discord.com/invite/eT4B65k5E4", "&aClick to join the Revere Discord.");
+        TextComponent discordComponent = ClickableUtil.createLinkComponent("&9&l[DISCORD]", "https://discord.gg/bEsW59UBG8", "&aClick to join the Revere Discord.");
         TextComponent builtByBitComponent = ClickableUtil.createLinkComponent("&b&l[BUILTBYBIT]", "https://builtbybit.com/resources/alley-next-generation-practice-core.73088/", "&aClick to open the BuiltByBit resource page.");
         TextComponent spigotMcComponent = ClickableUtil.createLinkComponent("&e&l[SPIGOTMC]", "https://www.spigotmc.org/resources/alley-next-generation-practice-core.127500/", "&aClick to open the SpigotMC resource page.");
 

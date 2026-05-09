@@ -58,7 +58,7 @@ scoreboard:
       - "   &6&lEU PRACTICE   "
   footer-addition:
     - ""
-    - "&6revere.dev/alley"
+    - "&6revere.no/alley"
     - "{sidebar}"
   lines:
     music:

@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 @Getter
 public enum CoreType {
-    DEFAULT("Default", "Revere Inc."),
+    DEFAULT("Default", "Revere Group."),
     PHOENIX("Phoenix", "Refine Development"),
     AQUA("AquaCore", "Activated_, FaceSlap_"),
     HELIUM("Helium", "Plasma Services"),

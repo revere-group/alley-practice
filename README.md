@@ -1,7 +1,7 @@
 # Alley
 
-**Developed By [Revere Development](https://www.revere.dev)**  
-*Primary Authors: [Remi](https://github.com/hmRemi) & [Emmy](https://github.com/hmEmmy)*
+**Developed By [Revere Group](https://www.revere.no)**  
+*Primary Contributors: [Hamza](https://github.com/hammzar), [Remi](https://github.com/hmRemi) & [Emmy](https://github.com/hmEmmy)*
 
 **Alley** is a custom Practice PvP core for **Minecraft 1.8**, built for performance, flexibility, and competitive gameplay. It's modular, customizable, and designed to support server admins with powerful tools for match management, player control, and visuals.
 
@@ -14,6 +14,7 @@
 - [Usage](#usage)
 - [Guidelines](#guidelines)
 - [Contributing](#contributing)
+- [Other Platforms](#other-platforms)
 - [Authors](#authors)
 
 
@@ -35,8 +36,7 @@ Alley is built to be easily configurable. After installation, access the configu
 
 By using Alley, you agree to the following terms:
 
-- This project may not be used for commercial gain without explicit permission from [Remi](https://github.com/hmRemi) and [Emmy](https://github.com/hmEmmy).
-- Credit must be given to the original authors by including their names and a link to the official repository in any distributed version.
+- This project may not be used for commercial gain without explicit permission from Revere. Credit must be given to the original authors by including their names and a link to the official repository in any distributed version.
 - Do not claim this project as your own, and do not remove existing copyright notices or license information.
 - Alley must remain free of charge and may not be used as a paid product.
 
@@ -51,13 +51,16 @@ We welcome contributions to improve Alley! If you would like to contribute, plea
 4. Push your changes to your forked repository.
 5. Open a pull request with a summary of the changes and why they should be merged.
 
+## Other Platforms
+
+- [BuiltByBit (MC-Market)](https://builtbybit.com/resources/alley-next-generation-practice-core.73088/)
+- [SpigotMC](https://www.spigotmc.org/resources/alley-next-generation-practice-core.127500/)
 
 ## Authors
 
-Alley is developed and maintained by Revere Development, with primary contributions from [Remi](https://github.com/hmRemi) and [Emmy](https://github.com/hmEmmy). For inquiries or to reach the team:
+Alley is developed and maintained by **Revere Group**. For inquiries or to reach the team:
 
-- **Website**: [revere.dev](https://www.revere.dev)
-- **Email**: [support@revere.dev](mailto:support@revere.dev)
-- **Support:** [discord.gg/revere](https://discord.gg/revere), or alternatively [discord.gg/eT4B65k5E4](https://discord.com/invite/eT4B65k5E4)
+- **Website**: [revere.no](https://www.revere.no)
+- **Email**: [support@revere.no](mailto:support@revere.no)
 
 Thank you for using and supporting Alley!

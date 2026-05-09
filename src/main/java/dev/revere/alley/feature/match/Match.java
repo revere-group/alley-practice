@@ -1372,7 +1372,6 @@ public abstract class Match {
         }
     }
 
-
     private void handleMatchTasks() {
         this.runnable = new MatchTask(this);
         this.runnable.runTaskTimer(this.plugin, 0L, 20L);

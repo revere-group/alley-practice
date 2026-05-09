@@ -39,7 +39,7 @@ public class AlleyCoreCommand extends BaseCommand {
         ).forEach(line -> sender.sendMessage(CC.translate(line)));
 
         if (core.getType() == CoreType.DEFAULT) {
-            sender.sendMessage(CC.translate("&7Note: This is the default server implementation, as there was no server found to hook into."));
+            sender.sendMessage(CC.translate("&7Note: This is the default server implementation, as there was no core found to hook into."));
         }
     }
 }
