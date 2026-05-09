@@ -46,14 +46,14 @@ public class SpectateCommand extends BaseCommand {
 
         ProfileService profileService = this.plugin.getService(ProfileService.class);
         Profile profile = profileService.getProfile(player.getUniqueId());
-        if (profile.getState() != ProfileState.LOBBY && profile.getState() != ProfileState.PLAYING_TOURNAMENT) {
+        if (profile.getState() != ProfileState.LOBBY && profile.getState() != ProfileState.TOURNAMENT_LOBBY) {
             player.sendMessage(this.getString(GlobalMessagesLocaleImpl.ERROR_YOU_MUST_BE_IN_LOBBY));
             return;
         }
 
         Profile targetProfile = this.plugin.getService(ProfileService.class).getProfile(target.getUniqueId());
 
-        if (targetProfile.getFfaMatch() != null && profile.getState() == ProfileState.PLAYING_TOURNAMENT) {
+        if (targetProfile.getFfaMatch() != null && profile.getState() == ProfileState.TOURNAMENT_LOBBY) {
             player.sendMessage(CC.translate("&cYou can not spectate whilst in a tournament.")); // todo: make these messages configurable
             return;
         }

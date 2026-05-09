@@ -495,7 +495,7 @@ public abstract class Match {
      * @param profile     The profile of the player.
      * @param participant The participant of the match.
      */
-    private boolean handleSpectator(Player player, Profile profile, GameParticipant<MatchGamePlayer> participant) {
+    protected boolean handleSpectator(Player player, Profile profile, GameParticipant<MatchGamePlayer> participant) {
         Kit matchKit = profile.getMatch().getKit();
 
         MatchGamePlayer gamePlayer = this.getFromAllGamePlayers(player);
@@ -1389,39 +1389,7 @@ public abstract class Match {
         this.placedBlocks.clear();
     }
 
-    private void sendPlayerVersusPlayerMessage() {
-        LocaleService localeService = this.plugin.getService(LocaleService.class);
-
-        GameParticipant<MatchGamePlayer> participantA = this.getParticipants().get(0);
-        GameParticipant<MatchGamePlayer> participantB = this.getParticipants().get(1);
-
-        if (this.isTeamMatch()) {
-            if (localeService.getBoolean(GameMessagesLocaleImpl.MATCH_PLAYER_VS_PLAYER_TEAM_ENABLED_BOOLEAN)) {
-                int teamSizeA = participantA.getPlayerSize();
-                int teamSizeB = participantB.getPlayerSize();
-
-                List<String> message = localeService.getStringList(GameMessagesLocaleImpl.MATCH_PLAYER_VS_PLAYER_TEAM_FORMAT);
-                for (String line : message) {
-                    String formatted = line
-                            .replace("{teamA-leader}", participantA.getLeader().getUsername())
-                            .replace("{teamA-size}", String.valueOf(teamSizeA))
-                            .replace("{teamB-leader}", participantB.getLeader().getUsername())
-                            .replace("{teamB-size}", String.valueOf(teamSizeB));
-                    this.sendMessage(formatted);
-                }
-            }
-        } else {
-            if (localeService.getBoolean(GameMessagesLocaleImpl.MATCH_PLAYER_VS_PLAYER_SOLO_ENABLED_BOOLEAN)) {
-                List<String> message = localeService.getStringList(GameMessagesLocaleImpl.MATCH_PLAYER_VS_PLAYER_SOLO_FORMAT);
-                for (String line : message) {
-                    String formatted = line
-                            .replace("{playerA}", participantA.getLeader().getUsername())
-                            .replace("{playerB}", participantB.getLeader().getUsername());
-                    this.sendMessage(formatted);
-                }
-            }
-        }
-    }
+    public abstract void sendPlayerVersusPlayerMessage();
 
     private void handleMatchTasks() {
         this.runnable = new MatchTask(this);

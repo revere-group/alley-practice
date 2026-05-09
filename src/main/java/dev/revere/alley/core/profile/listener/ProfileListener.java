@@ -220,7 +220,7 @@ public class ProfileListener implements Listener {
         Tournament tournament = profile.getTournament();
 
         return tournament != null &&
-                profile.getState().equals(ProfileState.PLAYING_TOURNAMENT) &&
+                profile.getState().equals(ProfileState.TOURNAMENT_LOBBY) &&
                 (tournament.getState() == TournamentState.STARTING || tournament.getState() == TournamentState.WAITING);
     }
 }

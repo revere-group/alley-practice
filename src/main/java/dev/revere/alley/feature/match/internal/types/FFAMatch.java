@@ -187,7 +187,7 @@ public class FFAMatch extends Match {
 
     private void broadcastFFAMatchOutcome() {
         ConfigService configService = AlleyPlugin.getInstance().getService(ConfigService.class);
-        FileConfiguration messagesConfig = configService.getMessagesConfig();
+        FileConfiguration messagesConfig = configService.getGlobalMessagesConfig();
         String path = "match.ended.match-result.ffa.";
 
         List<String> header = messagesConfig.getStringList(path + "format.header");

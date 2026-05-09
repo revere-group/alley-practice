@@ -137,7 +137,7 @@ public enum GlobalMessagesLocaleImpl implements LocaleEntry {
     ERROR_YOU_NO_MATCH_HISTORY("messages/global-messages.yml", "error-messages.you.no-match-history", "&cYou have no match history."),
     ERROR_YOU_PARTY_NOT_PUBLIC("messages/global-messages.yml", "error-messages.you.party-not-public", "&cYour party is not open to the public to announce. Please run the following command: &7/party open"),
 
-    ERROR_YOU_NOT_IN_PARTY("messages/global-messages.yml", "error-messages.you..not-in-party", "&cYou are not in a party."),
+    ERROR_YOU_NOT_IN_PARTY("messages/global-messages.yml", "error-messages.you.not-in-party", "&cYou are not in a party."),
     ERROR_YOU_NOT_PARTY_LEADER("messages/global-messages.yml", "error-messages.you.not-party-leader", "&cYou are not the leader of the party."),
     ERROR_YOU_ALREADY_IN_PARTY("messages/global-messages.yml", "error-messages.you.already-in-party", "&cYou are already in a party."),
     ERROR_YOU_ALREADY_IN_THIS_PARTY("messages/global-messages.yml", "error-messages.you.already-in-this-party", "&cYou are already in this party."),

@@ -83,7 +83,7 @@ public class TournamentCommand extends BaseCommand {
         }
     }
 
-    @CommandData(name = "tournament.list")
+    @CommandData(name = "tournament.list", description = "Lists all active tournaments.")
     public void listTournaments(CommandArgs command) {
         Player player = command.getPlayer();
         List<Tournament> tournaments = tournamentService.getTournaments().stream()
@@ -144,7 +144,7 @@ public class TournamentCommand extends BaseCommand {
         player.sendMessage("");
     }
 
-    @CommandData(name = "tournament.info")
+    @CommandData(name = "tournament.info", description = "Shows info about your current tournament.")
     public void info(CommandArgs command) {
         Player player = command.getPlayer();
         String[] args = command.getArgs();
@@ -187,7 +187,7 @@ public class TournamentCommand extends BaseCommand {
         player.sendMessage("");
     }
 
-    @CommandData(name = "tournament.start", permission = "alley.tournament.admin.start")
+    @CommandData(name = "tournament.start", permission = "alley.tournament.admin.start", description = "Starts a tournament.")
     public void start(CommandArgs command) {
         Player player = command.getPlayer();
         String[] args = command.getArgs();
@@ -221,7 +221,7 @@ public class TournamentCommand extends BaseCommand {
         tournamentService.forceStartTournament(tournamentToStart);
     }
 
-    @CommandData(name = "tournament.cancel", permission = "alley.tournament.admin.cancel")
+    @CommandData(name = "tournament.cancel", permission = "alley.tournament.admin.cancel", description = "Cancels a tournament.")
     public void cancel(CommandArgs command) {
         Player player = command.getPlayer();
         String[] args = command.getArgs();
@@ -242,7 +242,7 @@ public class TournamentCommand extends BaseCommand {
         tournamentService.cancelTournament(tournamentToCancel, reason);
     }
 
-    @CommandData(name = "tournament.join")
+    @CommandData(name = "tournament.join", description = "Joins a tournament.")
     public void join(CommandArgs command) {
         Player player = command.getPlayer();
         String[] args = command.getArgs();
@@ -264,12 +264,12 @@ public class TournamentCommand extends BaseCommand {
         tournamentService.joinTournament(player, target);
     }
 
-    @CommandData(name = "tournament.leave")
+    @CommandData(name = "tournament.leave", description = "Leaves a tournament.")
     public void leave(CommandArgs command) {
         tournamentService.handlePlayerDeparture(command.getPlayer());
     }
 
-    @CommandData(name = "tournament.host", permission = "alley.tournament.admin.host")
+    @CommandData(name = "tournament.host", permission = "alley.tournament.admin.host", description = "Hosts a tournament.")
     public void host(CommandArgs command) {
         Player player = command.getPlayer();
         String[] args = command.getArgs();
