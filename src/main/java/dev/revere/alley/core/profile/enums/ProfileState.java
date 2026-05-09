@@ -15,7 +15,7 @@ public enum ProfileState {
     FIGHTING_BOT("Fighting Bot", "The player is fighting a bot"),
     SPECTATING("Spectating", "The player is spectating a match"),
     EDITING("Editing", "The player is editing a kit"),
-    PLAYING_TOURNAMENT("Tournament", "The player is in a tournament"),
+    TOURNAMENT_LOBBY("Tournament", "The player is in a tournament lobby"),
     PLAYING_EVENT("Event", "The player is in an event"),
     FFA("FFA", "The player is in the FFA lobby"),
 

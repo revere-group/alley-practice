@@ -41,6 +41,7 @@ import dev.revere.alley.feature.match.internal.types.RoundsMatch;
 import dev.revere.alley.feature.match.model.GameParticipant;
 import dev.revere.alley.feature.match.model.GamePlayer;
 import dev.revere.alley.feature.match.model.MatchGamePlayerData;
+import dev.revere.alley.feature.match.model.TeamGameParticipant;
 import dev.revere.alley.feature.match.model.internal.MatchGamePlayer;
 import dev.revere.alley.feature.match.snapshot.Snapshot;
 import dev.revere.alley.feature.match.snapshot.SnapshotService;
@@ -50,10 +51,13 @@ import dev.revere.alley.feature.match.task.other.MatchCampProtectionTask;
 import dev.revere.alley.feature.match.task.other.MatchRespawnTask;
 import dev.revere.alley.feature.queue.Queue;
 import dev.revere.alley.feature.spawn.SpawnService;
+import dev.revere.alley.feature.tournament.TournamentService;
+import dev.revere.alley.feature.tournament.model.Tournament;
 import dev.revere.alley.feature.visibility.VisibilityService;
 import dev.revere.alley.visual.nametag.NametagService;
 import lombok.Getter;
 import lombok.Setter;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -85,6 +89,8 @@ public abstract class Match {
     private final Arena arena;
     private final boolean ranked;
 
+    protected Tournament tournament;
+
     private final Map<BlockState, Location> brokenBlocks = new ConcurrentHashMap<>();
     private final Map<BlockState, Location> placedBlocks = new ConcurrentHashMap<>();
     private final List<UUID> spectators = new CopyOnWriteArrayList<>();
@@ -107,7 +113,7 @@ public abstract class Match {
      * @param ranked Whether the match is ranked.
      */
     public Match(Queue queue, Kit kit, Arena arena, boolean ranked) {
-        this.queue = Objects.requireNonNull(queue, "Queue cannot be null");
+        this.queue = queue;
         this.kit = Objects.requireNonNull(kit, "Kit cannot be null");
         this.arena = Objects.requireNonNull(arena, "Arena cannot be null");
         this.ranked = ranked;
@@ -190,6 +196,10 @@ public abstract class Match {
         this.cleanupHealthDisplay();
 
         this.plugin.getService(MatchService.class).removeMatch(this);
+
+        if (this.tournament != null) {
+           this.plugin.getService(TournamentService.class).handleMatchEnd(this);
+        }
     }
 
     private void deleteArenaCopyIfStandalone() {
@@ -215,6 +225,16 @@ public abstract class Match {
                     .filter(Objects::nonNull)
                     .forEach(nametagService::updatePlayerState);
         });
+    }
+
+    /**
+     * Helper method to update the nametag of a specific participant.
+     *
+     * @param player The player to update the nametag of.
+     */
+    private void updateParticipantNametag(Player player) {
+        NametagService nametagService = this.plugin.getService(NametagService.class);
+        nametagService.updatePlayerState(player);
     }
 
     /**
@@ -422,22 +442,12 @@ public abstract class Match {
 
         player.setVelocity(new Vector());
 
-        if (this.canEndRound()) {
-            this.state = MatchState.ENDING_ROUND;
-            this.handleRoundEnd();
-
-            if (this.canEndMatch()) {
-                if (killer != null) {
-                    this.handleDeathEffects(player, killer);
-                }
-
-                this.state = MatchState.ENDING_MATCH;
-            }
-            this.runnable.setStage(4);
+        if (checkForConclusion(player, killer)) {
             return;
         }
 
         if (handleSpectator(player, victimProfile, participant)) {
+            gamePlayer.setEliminated(true);
             if (killer != null) {
                 this.handleDeathEffects(player, killer);
             }
@@ -460,13 +470,44 @@ public abstract class Match {
     }
 
     /**
+     * Checks if the match has reached a conclusion (round end or match end) and handles it accordingly.
+     * This is the centralized method to determine if the match should end based on the current state and conditions.
+     *
+     * @param victim The player who may have triggered the conclusion (can be null).
+     * @param killer The killer involved in the conclusion (can be null).
+     * @return true if a conclusion is reached, false otherwise.
+     */
+    public boolean checkForConclusion(Player victim, Player killer) {
+        if (!this.canEndRound()) {
+            return false;
+        }
+
+        this.state = MatchState.ENDING_ROUND;
+        if (this.runnable != null) {
+            this.runnable.setStage(4);
+        }
+
+        this.handleRoundEnd();
+
+        if (this.canEndMatch()) {
+            if (victim != null && killer != null) {
+                this.handleDeathEffects(victim, killer);
+            }
+
+            this.state = MatchState.ENDING_MATCH;
+        }
+
+        return true;
+    }
+
+    /**
      * Handles the player becoming a spectator based on the match state and kit settings.
      *
      * @param player      The player to handle.
      * @param profile     The profile of the player.
      * @param participant The participant of the match.
      */
-    private boolean handleSpectator(Player player, Profile profile, GameParticipant<MatchGamePlayer> participant) {
+    protected boolean handleSpectator(Player player, Profile profile, GameParticipant<MatchGamePlayer> participant) {
         Kit matchKit = profile.getMatch().getKit();
 
         MatchGamePlayer gamePlayer = this.getFromAllGamePlayers(player);
@@ -474,17 +515,27 @@ public abstract class Match {
             return false;
         }
 
-        return this.shouldBecomeSpectatorForEliminationKit(participant, matchKit, player) || shouldBecomeSpectatorForNonRoundKit(participant, matchKit);
-    }
-
-    private boolean shouldBecomeSpectatorForEliminationKit(GameParticipant<MatchGamePlayer> participant, Kit matchKit, Player player) {
-        if (!participant.isAllEliminated() && this.hasEliminationBasedKit(matchKit)) {
-            MatchGamePlayer gamePlayer = this.getGamePlayer(player);
-            return gamePlayer.isEliminated();
+        if (this.shouldSpectateEliminationKit(participant, matchKit, gamePlayer)) {
+            return true;
         }
-        return false;
+
+        return shouldBecomeSpectatorForNonRoundKit(participant, matchKit);
     }
 
+    /**
+     * True when this player is out (eliminated or entire side is out on elimination kits), e.g. bed broken or out of lives.
+     */
+    private boolean shouldSpectateEliminationKit(GameParticipant<MatchGamePlayer> participant, Kit matchKit, MatchGamePlayer gamePlayer) {
+        if (!this.hasEliminationBasedKit(matchKit)) {
+            return false;
+        }
+        return gamePlayer.isEliminated() || participant.isAllEliminated();
+    }
+
+    /**
+     * Default-style matches: any death removes you from play (spectator) while teammates can still fight.
+     * Round-based and elimination-kit modes use respawns / delayed elimination instead.
+     */
     private boolean shouldBecomeSpectatorForNonRoundKit(GameParticipant<MatchGamePlayer> participant, Kit matchKit) {
         return !participant.isAllDead() && !this.isRoundBasedKit(matchKit) && !this.hasEliminationBasedKit(matchKit);
     }
@@ -784,6 +835,122 @@ public abstract class Match {
     }
 
     /**
+     * Handles the revival of a player.
+     *
+     * @param player The player to revive.
+     * @param silent Whether the revived message should be sent to the player.
+     */
+    public void revivePlayer(Player player, boolean silent) {
+        if (player == null) return;
+
+        MatchGamePlayer gamePlayer = this.getFromAllGamePlayers(player);
+        if (gamePlayer == null || gamePlayer.isDisconnected()) {
+            return;
+        }
+
+        Profile profile = this.plugin.getService(ProfileService.class).getProfile(player.getUniqueId());
+        boolean wasSpectatingEliminatedParticipant = profile.getState() == ProfileState.SPECTATING && this.getSpectators().contains(player.getUniqueId());
+        if (!gamePlayer.isEliminated() && !wasSpectatingEliminatedParticipant) {
+            return;
+        }
+
+        gamePlayer.setEliminated(false);
+        gamePlayer.setDead(false);
+        profile.setState(ProfileState.PLAYING);
+        if (wasSpectatingEliminatedParticipant) {
+            this.getSpectators().remove(player.getUniqueId());
+        }
+
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setAllowFlight(false);
+        player.setFlying(false);
+
+        
+        this.registerHealthObjectiveForPlayer(player);
+        this.setupPlayer(player);
+
+        this.plugin.getService(NametagService.class).updatePlayerState(player);
+        this.plugin.getService(KnockbackAdapter.class).getKnockbackImplementation().applyKnockback(player, getKit().getKnockbackProfile());
+        this.plugin.getService(VisibilityService.class).updateVisibility(player);
+
+        if (!silent) {
+            notifyAll(CC.translate("&a" + player.getName() + " &ahas been revived."));
+        }
+    }
+
+    /**
+     * Pulls a lobby player into this match, joining the same team as the target participant.
+     * If {@code newTeam} is true (FFA-only), a brand-new participant is created instead.
+     *
+     * @param player  The player to pull in. Must be in {@link ProfileState#LOBBY}.
+     * @param target  A player already in this match whose team the pulled player will join.
+     * @param newTeam If true, create a new participant for the player (only valid for FFA matches).
+     * @return true if the pull succeeded, false if any guard condition was not met.
+     */
+    public boolean pullPlayerIntoMatch(Player player, Player target, boolean newTeam) {
+        if (player == null || target == null) return false;
+        if (this.getState() == MatchState.ENDING_MATCH || this.getState() == MatchState.ENDING_ROUND) return false;
+        if (newTeam && this.rejectsNewTeamPull()) return false;
+
+        Profile playerProfile = this.plugin.getService(ProfileService.class).getProfile(player.getUniqueId());
+        if (playerProfile == null || playerProfile.getState() != ProfileState.LOBBY) return false;
+
+        if (this.getFromAllGamePlayers(player) != null || this.spectators.contains(player.getUniqueId())) return false;
+
+        GameParticipant<MatchGamePlayer> targetParticipant = this.getParticipants().stream()
+                .filter(p -> p.containsPlayer(target.getUniqueId()))
+                .findFirst()
+                .orElse(null);
+        if (targetParticipant == null) return false;
+
+        MatchGamePlayer newGamePlayer = new MatchGamePlayer(player.getUniqueId(), player.getName());
+
+        if (newTeam) {
+            this.getParticipants().add(new GameParticipant<>(newGamePlayer));
+        } else if (targetParticipant instanceof TeamGameParticipant) {
+            targetParticipant.addPlayer(newGamePlayer);
+        } else {
+            TeamGameParticipant<MatchGamePlayer> upgraded = new TeamGameParticipant<>(targetParticipant.getLeader());
+            upgraded.addPlayer(newGamePlayer);
+            this.replaceParticipant(targetParticipant, upgraded);
+        }
+
+        playerProfile.setState(ProfileState.PLAYING);
+        playerProfile.setMatch(this);
+
+        this.setupPlayer(player);
+        this.registerHealthObjectiveForPlayer(player);
+        this.plugin.getService(VisibilityService.class).updateVisibility(player);
+        this.plugin.getService(KnockbackAdapter.class).getKnockbackImplementation().applyKnockback(player, getKit().getKnockbackProfile());
+        this.plugin.getService(NametagService.class).updatePlayerState(player);
+
+        return true;
+    }
+
+    /**
+     * Replaces a solo {@link GameParticipant} with a {@link TeamGameParticipant} that holds the same
+     * leader plus any newly added players. Subclasses must override this if they store participants
+     * in named fields (e.g. {@code participantA}/{@code participantB}).
+     *
+     * @param old         The participant to replace.
+     * @param replacement The upgraded team participant.
+     */
+    protected void replaceParticipant(GameParticipant<MatchGamePlayer> old, TeamGameParticipant<MatchGamePlayer> replacement) {
+        // no-op by default; overridden by DefaultMatch and FFAMatch
+    }
+
+    /**
+     * Returns whether this match type rejects creating a brand-new participant via
+     * {@link #pullPlayerIntoMatch} when {@code newTeam} is {@code true}.
+     * Returns {@code false} only in FFA matches.
+     *
+     * @return true if a new team pull is not permitted for this match type.
+     */
+    public boolean rejectsNewTeamPull() {
+        return true;
+    }
+
+    /**
      * Adds a player to the list of spectators.
      *
      * @param player The player to add.
@@ -830,7 +997,8 @@ public abstract class Match {
     public void removeSpectator(Player player, boolean notify) {
         ProfileService profileService = this.plugin.getService(ProfileService.class);
         Profile profile = profileService.getProfile(player.getUniqueId());
-        profile.setState(ProfileState.LOBBY);
+
+        profile.setState(profile.inTournament() ? ProfileState.TOURNAMENT_LOBBY : ProfileState.LOBBY);
         profile.setMatch(null);
 
         NametagService nametagService = this.plugin.getService(NametagService.class);
@@ -1177,6 +1345,28 @@ public abstract class Match {
     }
 
     /**
+     * Notifies all participants and spectators with an advanced chat component.
+     * This is used for sending clickable or hoverable messages.
+     *
+     * @param component The component(s) to send.
+     */
+    public void sendComponentMessage(BaseComponent component) {
+        this.getParticipants().forEach(gameParticipant -> gameParticipant.getPlayers().forEach(uuid -> {
+            Player player = this.plugin.getServer().getPlayer(uuid.getUuid());
+            if (player != null) {
+                player.spigot().sendMessage(component);
+            }
+        }));
+
+        this.getSpectators().forEach(uuid -> {
+            Player player = this.plugin.getServer().getPlayer(uuid);
+            if (player != null) {
+                player.spigot().sendMessage(component);
+            }
+        });
+    }
+
+    /**
      * Checks if the attacker is in the same participant team as the supposed victim.
      *
      * @param attacker The attacker.
@@ -1289,7 +1479,6 @@ public abstract class Match {
         }
     }
 
-
     @SuppressWarnings("deprecation")
     public void resetBlockChanges() {
         if (this.getKit().isSettingEnabled(KitSettingRaiding.class)) {
@@ -1338,39 +1527,7 @@ public abstract class Match {
         this.placedBlocks.clear();
     }
 
-    private void sendPlayerVersusPlayerMessage() {
-        LocaleService localeService = this.plugin.getService(LocaleService.class);
-
-        GameParticipant<MatchGamePlayer> participantA = this.getParticipants().get(0);
-        GameParticipant<MatchGamePlayer> participantB = this.getParticipants().get(1);
-
-        if (this.isTeamMatch()) {
-            if (localeService.getBoolean(GameMessagesLocaleImpl.MATCH_PLAYER_VS_PLAYER_TEAM_ENABLED_BOOLEAN)) {
-                int teamSizeA = participantA.getPlayerSize();
-                int teamSizeB = participantB.getPlayerSize();
-
-                List<String> message = localeService.getStringList(GameMessagesLocaleImpl.MATCH_PLAYER_VS_PLAYER_TEAM_FORMAT);
-                for (String line : message) {
-                    String formatted = line
-                            .replace("{teamA-leader}", participantA.getLeader().getUsername())
-                            .replace("{teamA-size}", String.valueOf(teamSizeA))
-                            .replace("{teamB-leader}", participantB.getLeader().getUsername())
-                            .replace("{teamB-size}", String.valueOf(teamSizeB));
-                    this.sendMessage(formatted);
-                }
-            }
-        } else {
-            if (localeService.getBoolean(GameMessagesLocaleImpl.MATCH_PLAYER_VS_PLAYER_SOLO_ENABLED_BOOLEAN)) {
-                List<String> message = localeService.getStringList(GameMessagesLocaleImpl.MATCH_PLAYER_VS_PLAYER_SOLO_FORMAT);
-                for (String line : message) {
-                    String formatted = line
-                            .replace("{playerA}", participantA.getLeader().getUsername())
-                            .replace("{playerB}", participantB.getLeader().getUsername());
-                    this.sendMessage(formatted);
-                }
-            }
-        }
-    }
+    public abstract void sendPlayerVersusPlayerMessage();
 
     private void handleMatchTasks() {
         this.runnable = new MatchTask(this);

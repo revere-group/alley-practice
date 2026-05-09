@@ -2,7 +2,9 @@ package dev.revere.alley.visual.scoreboard.internal;
 
 import dev.revere.alley.AlleyPlugin;
 import dev.revere.alley.core.config.ConfigService;
+import dev.revere.alley.feature.match.Match;
 import dev.revere.alley.feature.match.internal.types.DefaultMatch;
+import dev.revere.alley.feature.match.internal.types.FFAMatch;
 import dev.revere.alley.feature.match.model.internal.MatchGamePlayer;
 import dev.revere.alley.feature.match.model.GameParticipant;
 import dev.revere.alley.core.profile.Profile;
@@ -13,6 +15,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Emmy
@@ -23,8 +26,12 @@ public class SpectatorScoreboardImpl implements Scoreboard {
     @Override
     public List<String> getLines(Profile profile) {
         ConfigService configService = AlleyPlugin.getInstance().getService(ConfigService.class);
-
         List<String> scoreboardLines = new ArrayList<>();
+        Match match = profile.getMatch();
+
+        if (match == null) {
+            return Collections.emptyList();
+        }
 
         GameParticipant<MatchGamePlayer> participantA = getParticipantSafely(profile.getMatch().getParticipants(), 0);
         GameParticipant<MatchGamePlayer> participantB = getParticipantSafely(profile.getMatch().getParticipants(), 1);
@@ -34,7 +41,7 @@ public class SpectatorScoreboardImpl implements Scoreboard {
         String pingA = getPingSafely(participantA);
         String pingB = getPingSafely(participantB);
 
-        if (profile.getMatch() instanceof DefaultMatch) {
+        if (match instanceof DefaultMatch) {
             for (String line : configService.getScoreboardConfig().getStringList("scoreboard.lines.spectating.regular-match")) {
                 scoreboardLines.add(CC.translate(line)
                         .replaceAll("\\{playerA}", playerAName)
@@ -46,6 +53,34 @@ public class SpectatorScoreboardImpl implements Scoreboard {
                         .replaceAll("\\{duration}", profile.getMatch().getDuration())
                         .replaceAll("\\{arena}", profile.getMatch().getArena().getDisplayName() == null ? "&c&lNULL" : profile.getMatch().getArena().getDisplayName())
                         .replaceAll("\\{kit}", profile.getMatch().getKit().getDisplayName()));
+            }
+        } else if (match instanceof FFAMatch) {
+            FFAMatch ffaMatch = (FFAMatch) match;
+
+            for (String line : configService.getScoreboardConfig().getStringList("scoreboard.lines.spectating.ffa-match")) {
+                if (line.contains("{player_list}")) {
+                    List<MatchGamePlayer> alivePlayers = ffaMatch.getParticipants().stream()
+                            .filter(p -> !p.isAllEliminated())
+                            .map(GameParticipant::getLeader)
+                            .limit(5)
+                            .collect(Collectors.toList());
+
+                    for (MatchGamePlayer gamePlayer : alivePlayers) {
+                        Player p = gamePlayer.getTeamPlayer();
+                        if (p != null) {
+                            scoreboardLines.add(CC.translate(" &7- &f" + p.getName() + " &7(&a" + getPing(p) + "ms&7)"));
+                        }
+                    }
+                    continue;
+                }
+
+                long aliveCount = ffaMatch.getParticipants().stream().filter(p -> !p.isAllEliminated()).count();
+                line = line.replace("{players_alive}", String.valueOf(aliveCount));
+                line = line.replace("{players_total}", String.valueOf(ffaMatch.getParticipants().size()));
+                line = line.replace("{kit}", ffaMatch.getKit().getDisplayName());
+                line = line.replace("{arena}", ffaMatch.getArena().getDisplayName());
+
+                scoreboardLines.add(CC.translate(line));
             }
         } else if (profile.getFfaMatch() != null) {
             for (String line : configService.getScoreboardConfig().getStringList("scoreboard.lines.spectating.ffa")) {

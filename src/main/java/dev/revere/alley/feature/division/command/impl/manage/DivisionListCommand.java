@@ -27,10 +27,10 @@ public class DivisionListCommand extends BaseCommand {
         player.sendMessage("");
         player.sendMessage(CC.translate("     &6&lDivision List &f(" + divisionService.getDivisions().size() + "&f)"));
         if (divisionService.getDivisions().isEmpty()) {
-            player.sendMessage(CC.translate("      &f◆ &cNo Divisions available."));
+            player.sendMessage(CC.translate("      &6│ &cNo Divisions available."));
         }
         divisionService.getDivisions()
-                .forEach(division -> player.sendMessage(CC.translate("      &f◆ &6" + division.getDisplayName() + " &f(" + division.getTiers().get(0).getRequiredWins() + " wins)")));
+                .forEach(division -> player.sendMessage(CC.translate("      &6│ &6" + division.getDisplayName() + " &f(" + division.getTiers().get(0).getRequiredWins() + " wins)")));
         player.sendMessage("");
 
     }

@@ -52,7 +52,7 @@ public class CosmeticGetSelectedCommand extends BaseCommand {
 
             String friendlyTypeName = StringUtil.formatEnumName(type);
 
-            player.sendMessage(CC.translate(String.format("      &f◆ &6%s: &f%s", friendlyTypeName, selectedName)));
+            player.sendMessage(CC.translate(String.format("      &6│ &6%s: &f%s", friendlyTypeName, selectedName)));
         }
     }
 }

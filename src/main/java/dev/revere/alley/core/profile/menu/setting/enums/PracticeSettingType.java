@@ -207,6 +207,6 @@ public enum PracticeSettingType {
      * @return The formatted time string.
      */
     private static String formatTime(String label, boolean active, String activeColor) {
-        return " &f● " + (active ? activeColor : "&7") + label;
+        return " &6│ " + (active ? activeColor : "&7") + label;
     }
 }

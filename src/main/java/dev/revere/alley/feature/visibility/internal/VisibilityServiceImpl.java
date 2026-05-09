@@ -139,8 +139,13 @@ public class VisibilityServiceImpl implements VisibilityService {
             return;
         }
 
-        MatchGamePlayer targetGamePlayer = viewerProfile.getMatch().getGamePlayer(target);
+        MatchGamePlayer targetGamePlayer = viewerProfile.getMatch().getFromAllGamePlayers(target);
         if (targetProfile.getMatch().getSpectators().contains(target.getUniqueId())) {
+            viewer.hidePlayer(target);
+            return;
+        }
+
+        if (targetGamePlayer == null) {
             viewer.hidePlayer(target);
             return;
         }

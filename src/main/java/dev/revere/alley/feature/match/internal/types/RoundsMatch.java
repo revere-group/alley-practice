@@ -32,9 +32,6 @@ import java.util.List;
  */
 @Getter
 public class RoundsMatch extends DefaultMatch {
-    private final GameParticipant<MatchGamePlayer> participantA;
-    private final GameParticipant<MatchGamePlayer> participantB;
-
     private GameParticipant<MatchGamePlayer> winner;
     private GameParticipant<MatchGamePlayer> loser;
 
@@ -58,8 +55,6 @@ public class RoundsMatch extends DefaultMatch {
      */
     public RoundsMatch(Queue queue, Kit kit, Arena arena, boolean ranked, GameParticipant<MatchGamePlayer> participantA, GameParticipant<MatchGamePlayer> participantB, int rounds) {
         super(queue, kit, arena, ranked, participantA, participantB);
-        this.participantA = participantA;
-        this.participantB = participantB;
         this.rounds = rounds;
         this.scorer = "Unknown";
 
@@ -70,9 +65,9 @@ public class RoundsMatch extends DefaultMatch {
 
     @Override
     public void handleRoundEnd() {
-        this.winner = this.participantA.isAllDead() ? this.participantB : this.participantA;
+        this.winner = this.getParticipantA().isAllDead() ? this.getParticipantB() : this.getParticipantA();
         this.winner.getLeader().getData().incrementScore();
-        this.loser = this.participantA.isAllDead() ? this.participantA : this.participantB;
+        this.loser = this.getParticipantA().isAllDead() ? this.getParticipantA() : this.getParticipantB();
 
         this.currentRound++;
 
@@ -120,9 +115,9 @@ public class RoundsMatch extends DefaultMatch {
 
     @Override
     public void handleDeath(Player player, EntityDamageEvent.DamageCause cause) {
-        GameParticipant<MatchGamePlayer> participant = this.participantA.containsPlayer(player.getUniqueId())
-                ? this.participantA
-                : this.participantB;
+        GameParticipant<MatchGamePlayer> participant = this.getParticipantA().containsPlayer(player.getUniqueId())
+                ? this.getParticipantA()
+                : this.getParticipantB();
         participant.getLeader().getData().incrementDeaths();
 
         this.fallenPlayer = player;
@@ -130,19 +125,19 @@ public class RoundsMatch extends DefaultMatch {
         if (this.getKit().isSettingEnabled(KitSettingStickFight.class)) {
             Player lastAttacker = AlleyPlugin.getInstance().getService(CombatService.class).getLastAttacker(player);
             if (lastAttacker == null) {
-                GameParticipant<MatchGamePlayer> opponent = this.participantA.containsPlayer(player.getUniqueId())
-                        ? this.participantB
-                        : this.participantA;
+                GameParticipant<MatchGamePlayer> opponent = this.getParticipantA().containsPlayer(player.getUniqueId())
+                        ? this.getParticipantB()
+                        : this.getParticipantA();
 
                 this.setScorer(opponent.getLeader().getUsername());
             } else {
                 this.setScorer(lastAttacker.getName());
             }
 
-            if (this.participantA.containsPlayer(player.getUniqueId())) {
-                participant = this.participantA;
+            if (this.getParticipantA().containsPlayer(player.getUniqueId())) {
+                participant = this.getParticipantA();
             } else {
-                participant = this.participantB;
+                participant = this.getParticipantB();
             }
 
             if (participant instanceof TeamGameParticipant<?>) {
@@ -173,11 +168,11 @@ public class RoundsMatch extends DefaultMatch {
 
     @Override
     public void handleParticipant(Player player, MatchGamePlayer gamePlayer) {
-        GameParticipant<MatchGamePlayer> participant = this.participantA.containsPlayer(player.getUniqueId())
-                ? this.participantA
-                : this.participantB;
+        GameParticipant<MatchGamePlayer> participant = this.getParticipantA().containsPlayer(player.getUniqueId())
+                ? this.getParticipantA()
+                : this.getParticipantB();
         if (participant.getLeader().getData().getScore() == this.rounds) {
-            GameParticipant<MatchGamePlayer> opponent = participant == this.participantA ? this.participantB : this.participantA;
+            GameParticipant<MatchGamePlayer> opponent = participant == this.getParticipantA() ? this.getParticipantB() : this.getParticipantA();
             opponent.getLeader().setEliminated(true);
         }
     }
@@ -196,21 +191,21 @@ public class RoundsMatch extends DefaultMatch {
 
     @Override
     public boolean canStartRound() {
-        return this.participantA.getLeader().getData().getScore() < this.rounds && this.participantB.getLeader().getData().getScore() < this.rounds;
+        return this.getParticipantA().getLeader().getData().getScore() < this.rounds && this.getParticipantB().getLeader().getData().getScore() < this.rounds;
     }
 
     @Override
     public boolean canEndRound() {
-        return (this.participantA.isAllDead() || this.participantB.isAllDead())
-                || (this.participantA.getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected)
-                || this.participantB.getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected));
+        return (this.getParticipantA().isAllDead() || this.getParticipantB().isAllDead())
+                || (this.getParticipantA().getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected)
+                || this.getParticipantB().getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected));
     }
 
     @Override
     public boolean canEndMatch() {
-        return (this.participantA.getLeader().getData().getScore() == this.rounds || this.participantB.getLeader().getData().getScore() == this.rounds)
-                || (this.participantA.getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected)
-                || this.participantB.getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected));
+        return (this.getParticipantA().getLeader().getData().getScore() == this.rounds || this.getParticipantB().getLeader().getData().getScore() == this.rounds)
+                || (this.getParticipantA().getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected)
+                || this.getParticipantB().getAllPlayers().stream().allMatch(MatchGamePlayer::isDisconnected));
     }
 
     /**

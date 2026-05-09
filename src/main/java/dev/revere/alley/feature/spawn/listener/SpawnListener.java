@@ -4,6 +4,7 @@ import dev.revere.alley.AlleyPlugin;
 import dev.revere.alley.core.profile.ProfileService;
 import dev.revere.alley.core.profile.Profile;
 import dev.revere.alley.core.profile.enums.ProfileState;
+import dev.revere.alley.feature.tournament.model.Tournament;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -30,7 +31,7 @@ public class SpawnListener implements Listener {
         ProfileService profileService = AlleyPlugin.getInstance().getService(ProfileService.class);
         Profile profile = profileService.getProfile(player.getUniqueId());
 
-        if (profile.getState().equals(ProfileState.LOBBY) || profile.getState().equals(ProfileState.EDITING) || profile.getState().equals(ProfileState.WAITING)) {
+        if (profile.getState().equals(ProfileState.LOBBY) || validateTournament(profile) || profile.getState().equals(ProfileState.EDITING) || profile.getState().equals(ProfileState.WAITING)) {
             if (player.getGameMode() == GameMode.CREATIVE) {
                 return;
             }
@@ -46,6 +47,7 @@ public class SpawnListener implements Listener {
 
         if (player.getGameMode() == GameMode.SURVIVAL
                 && (profile.getState().equals(ProfileState.LOBBY)
+                || validateTournament(profile)
                 || profile.getState().equals(ProfileState.EDITING)
                 || profile.getState().equals(ProfileState.WAITING))) {
             event.setCancelled(true);
@@ -60,6 +62,7 @@ public class SpawnListener implements Listener {
 
         if (player.getGameMode() == GameMode.SURVIVAL
                 && (profile.getState().equals(ProfileState.LOBBY)
+                || validateTournament(profile)
                 || profile.getState().equals(ProfileState.EDITING)
                 || profile.getState().equals(ProfileState.WAITING))) {
             event.setCancelled(true);
@@ -71,7 +74,7 @@ public class SpawnListener implements Listener {
         Player player = event.getPlayer();
         ProfileService profileService = AlleyPlugin.getInstance().getService(ProfileService.class);
         Profile profile = profileService.getProfile(player.getUniqueId());
-        if (profile.getState().equals(ProfileState.LOBBY) || profile.getState().equals(ProfileState.EDITING) || profile.getState().equals(ProfileState.WAITING)) {
+        if (profile.getState().equals(ProfileState.LOBBY) || validateTournament(profile) || profile.getState().equals(ProfileState.EDITING) || profile.getState().equals(ProfileState.WAITING)) {
             if (player.getGameMode() == GameMode.CREATIVE) {
                 return;
             }
@@ -89,6 +92,7 @@ public class SpawnListener implements Listener {
             if (profile.getState().equals(ProfileState.LOBBY)
                     || profile.getState().equals(ProfileState.EDITING)
                     || profile.getState().equals(ProfileState.WAITING)
+                    || validateTournament(profile)
                     || profile.getState().equals(ProfileState.SPECTATING)) {
                 event.setCancelled(true);
             }
@@ -106,9 +110,7 @@ public class SpawnListener implements Listener {
                 return;
             }
 
-            if (player.getGameMode() == GameMode.SURVIVAL
-                    && (profile.getState().equals(ProfileState.LOBBY)
-                    || profile.getState().equals(ProfileState.WAITING))) {
+            if (player.getGameMode() == GameMode.SURVIVAL && (profile.getState().equals(ProfileState.LOBBY) || validateTournament(profile) || profile.getState().equals(ProfileState.WAITING))) {
                 if (event.getClickedInventory() != null && event.getClickedInventory().equals(player.getInventory())) {
                     event.setCancelled(true);
                 }
@@ -126,6 +128,7 @@ public class SpawnListener implements Listener {
 
         if (profile.getState().equals(ProfileState.LOBBY)
                 || profile.getState().equals(ProfileState.EDITING)
+                || validateTournament(profile)
                 || profile.getState().equals(ProfileState.WAITING)) {
             event.setCancelled(true);
         }
@@ -137,11 +140,17 @@ public class SpawnListener implements Listener {
         ProfileService profileService = AlleyPlugin.getInstance().getService(ProfileService.class);
         Profile profile = profileService.getProfile(player.getUniqueId());
 
-        if (profile.getState().equals(ProfileState.LOBBY) || profile.getState().equals(ProfileState.EDITING) || profile.getState().equals(ProfileState.WAITING)) {
+        if (profile.getState().equals(ProfileState.LOBBY) || validateTournament(profile) || profile.getState().equals(ProfileState.EDITING) || profile.getState().equals(ProfileState.WAITING)) {
             if (player.getGameMode() == GameMode.CREATIVE) {
                 return;
             }
             event.setCancelled(true);
         }
+    }
+
+    private boolean validateTournament(Profile profile) {
+        Tournament tournament = profile.getTournament();
+
+        return tournament != null && profile.getState().equals(ProfileState.TOURNAMENT_LOBBY);
     }
 }

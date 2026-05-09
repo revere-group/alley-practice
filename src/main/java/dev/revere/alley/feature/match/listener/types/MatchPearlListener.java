@@ -123,11 +123,7 @@ public class MatchPearlListener implements Listener {
             return false;
         }
 
-        if (profile.getMatch().getKit().isSettingEnabled(KitSettingLives.class)) {
-            return false;
-        }
-
-        return true;
+        return !profile.getMatch().getKit().isSettingEnabled(KitSettingLives.class);
     }
 
     private boolean hasPearlCooldown(Player player, ProjectileLaunchEvent event) {

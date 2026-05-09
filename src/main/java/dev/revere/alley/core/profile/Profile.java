@@ -22,6 +22,7 @@ import dev.revere.alley.feature.match.Match;
 import dev.revere.alley.feature.party.Party;
 import dev.revere.alley.feature.queue.QueueProfile;
 import dev.revere.alley.feature.queue.QueueType;
+import dev.revere.alley.feature.tournament.model.Tournament;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.ChatColor;
@@ -52,6 +53,7 @@ public class Profile {
     private final Map<Class<? extends Ability>, AbilityCooldown> abilityCooldowns;
     private final Map<GlobalCooldown, AbilityCooldown> globalCooldowns;
 
+    private Tournament tournament;
     private FFAMatch ffaMatch;
     private Match match;
     private Party party;
@@ -119,6 +121,15 @@ public class Profile {
      */
     public boolean isBusy() {
         return this.state != ProfileState.LOBBY;
+    }
+
+    /**
+     * Checks if the profile is currently in a tournament.
+     *
+     * @return True if the profile is in a tournament, otherwise false.
+     */
+    public boolean inTournament() {
+        return this.tournament != null;
     }
 
     /**

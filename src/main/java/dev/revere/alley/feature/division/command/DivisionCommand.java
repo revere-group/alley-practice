@@ -27,15 +27,15 @@ public class DivisionCommand extends BaseCommand {
         if (player.hasPermission("alley.admin")) {
             player.sendMessage(" ");
             player.sendMessage(CC.translate("&6&lDivision Commands Help:"));
-            player.sendMessage(CC.translate(" &f◆ &6/division create &8(&7divisionName&8) &8(&7requiredWins&8) &7| Create a division"));
-            player.sendMessage(CC.translate(" &f◆ &6/division delete &8(&7divisionName&8) &7| Delete a division"));
-            player.sendMessage(CC.translate(" &f◆ &6/division view &8(&7divisionName&8) &7| View division info"));
-            player.sendMessage(CC.translate(" &f◆ &6/division setwins &8(&7divisionName&8) &8(&7requiredWins&8) &8(&7tier&8) &7| Set required wins of a tier"));
-            player.sendMessage(CC.translate(" &f◆ &6/division seticon &8(&7divisionName&8) &7| Set division icon"));
-            player.sendMessage(CC.translate(" &f◆ &6/division setdisplayname &8(&7divisionName&8) &8(&7displayName&8) &7| Set division display name"));
-            player.sendMessage(CC.translate(" &f◆ &6/division setdescription &8(&7divisionName&8) &8(&7description&8) &7| Set division description"));
-            player.sendMessage(CC.translate(" &f◆ &6/division menu &7| Open the division menu"));
-            player.sendMessage(CC.translate(" &f◆ &6/division list &7| View all divisions"));
+            player.sendMessage(CC.translate(" &6│ &6/division create &8(&7divisionName&8) &8(&7requiredWins&8) &7| Create a division"));
+            player.sendMessage(CC.translate(" &6│ &6/division delete &8(&7divisionName&8) &7| Delete a division"));
+            player.sendMessage(CC.translate(" &6│ &6/division view &8(&7divisionName&8) &7| View division info"));
+            player.sendMessage(CC.translate(" &6│ &6/division setwins &8(&7divisionName&8) &8(&7requiredWins&8) &8(&7tier&8) &7| Set required wins of a tier"));
+            player.sendMessage(CC.translate(" &6│ &6/division seticon &8(&7divisionName&8) &7| Set division icon"));
+            player.sendMessage(CC.translate(" &6│ &6/division setdisplayname &8(&7divisionName&8) &8(&7displayName&8) &7| Set division display name"));
+            player.sendMessage(CC.translate(" &6│ &6/division setdescription &8(&7divisionName&8) &8(&7description&8) &7| Set division description"));
+            player.sendMessage(CC.translate(" &6│ &6/division menu &7| Open the division menu"));
+            player.sendMessage(CC.translate(" &6│ &6/division list &7| View all divisions"));
             player.sendMessage("");
             return;
         }

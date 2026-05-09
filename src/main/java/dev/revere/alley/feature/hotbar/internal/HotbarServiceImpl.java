@@ -283,7 +283,7 @@ public class HotbarServiceImpl implements HotbarService {
                 break;
             case LOBBY:
                 return (profile.getParty() != null) ? HotbarType.PARTY : HotbarType.LOBBY;
-            case PLAYING_TOURNAMENT:
+            case TOURNAMENT_LOBBY:
                 type = HotbarType.TOURNAMENT;
                 break;
             default:

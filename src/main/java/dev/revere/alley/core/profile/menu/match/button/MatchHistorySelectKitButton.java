@@ -43,9 +43,9 @@ public class MatchHistorySelectKitButton extends Button {
         return new ItemBuilder(this.kit.getIcon())
                 .name("&6&l" + this.kit.getDisplayName())
                 .lore(
-                        " &f● Total: &6" + count,
-                        " &f● Ranked: &6" + rankedCount,
-                        " &f● Unranked: &6" + unrankedCount,
+                        " &6│ Total: &6" + count,
+                        " &6│ Ranked: &6" + rankedCount,
+                        " &6│ Unranked: &6" + unrankedCount,
                         "",
                         "&aClick to view!"
                 )

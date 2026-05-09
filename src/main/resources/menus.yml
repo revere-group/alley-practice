@@ -63,15 +63,15 @@ menus:
         glass-durability: 15
         name: "&6&lMatch Info"
         lore:
-          - " &f◆ &6Kit: &f{kit}"
-          - " &f◆ &6Arena: &f{arena}"
-          - " &f◆ &6Players: &f{players}"
+          - " &6│ &6Kit: &f{kit}"
+          - " &6│ &6Arena: &f{arena}"
+          - " &6│ &6Players: &f{players}"
       spectator-teleport-button:
         name: "{player-color}{username}"
         lore:
-          - " &f◆ &6Ping: &f{ping}ms"
-          - " &f◆ &6Team: &f{team}"
-          - " &f◆ &6ELO: &f{elo}"
+          - " &6│ &6Ping: &f{ping}ms"
+          - " &6│ &6Team: &f{team}"
+          - " &6│ &6ELO: &f{elo}"
           - ""
           - "&6&lLEFT-CLICK &fto teleport to this player."
           - "&6&lRIGHT-CLICK &fto view their statistics."

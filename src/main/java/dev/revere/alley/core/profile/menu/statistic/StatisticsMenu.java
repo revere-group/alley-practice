@@ -80,7 +80,7 @@ public class StatisticsMenu extends Menu {
                     CC.MENU_BAR,
                     "&6&lUnranked &6⭐" + profileUnrankedKitData.getDivision().getName() + " " + profileUnrankedKitData.getTier().getName(),
                     "&6│ &fWins: &6" + profileUnrankedKitData.getWins(),
-                    //"&f● &6Losses: &f" + profileUnrankedKitData.getLosses(),
+                    //"&6│ &6Losses: &f" + profileUnrankedKitData.getLosses(),
                     "",
                     "&6│ &fWin Streak: " + "&6N/A",
                     "    &fBest: " + "&6N/A" + " &7(N/A Daily)"
@@ -91,7 +91,7 @@ public class StatisticsMenu extends Menu {
                         "",
                         "&6&lRanked",
                         "&6│ &fWins: &6" + profileRankedKitData.getWins(),
-                        //"&f● &6Losses: &f" + profileRankedKitData.getLosses(),
+                        //"&6│ &6Losses: &f" + profileRankedKitData.getLosses(),
                         "&6│ &fElo: &6" + profileRankedKitData.getElo()
                 ));
             }
@@ -100,8 +100,8 @@ public class StatisticsMenu extends Menu {
                 lore.addAll(Arrays.asList(
                         "",
                         "&6&lTournament",
-                        "&f● &6Wins: &f" + "N/A",
-                        "&f● &6Losses: &f" + "N/A"
+                        "&6│ &6Wins: &f" + "N/A",
+                        "&6│ &6Losses: &f" + "N/A"
                 ));
             }
 
@@ -109,8 +109,8 @@ public class StatisticsMenu extends Menu {
                 lore.addAll(Arrays.asList(
                         "",
                         "&6&lFFA",
-                        "&f● &6Kills: &f" + profileFFAData.getKills() + " &7(" + profileFFAData.getKillDeathRatio() + ")",
-                        "&f● &6Deaths: &f" + profileFFAData.getDeaths()
+                        "&6│ &6Kills: &f" + profileFFAData.getKills() + " &7(" + profileFFAData.getKillDeathRatio() + ")",
+                        "&6│ &6Deaths: &f" + profileFFAData.getDeaths()
                 ));
             }
 

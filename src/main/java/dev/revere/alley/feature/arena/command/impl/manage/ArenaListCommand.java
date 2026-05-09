@@ -39,7 +39,7 @@ public class ArenaListCommand extends BaseCommand {
         player.sendMessage(CC.translate("     &6&lArena List &f(" + arenaService.getArenas().size() + "&f)"));
 
         if (arenaService.getArenas().isEmpty()) {
-            player.sendMessage(CC.translate("      &f◆ &cNo arenas available."));
+            player.sendMessage(CC.translate("      &6│ &cNo arenas available."));
             return;
         }
 
@@ -48,11 +48,11 @@ public class ArenaListCommand extends BaseCommand {
                 .forEach(arena -> {
                     ComponentBuilder hover = new ComponentBuilder("")
                             .append(CC.translate("&6&lArena Info" + LoreHelper.displayEnabled(arena.isEnabled()) + "\n"))
-                            .append(CC.translate(" &f● Display Name: &6" + arena.getDisplayName() + "\n"))
-                            .append(CC.translate(" &f● Type: &6" + arena.getType().name() + "\n"))
-                            .append(CC.translate(" &f● Center: &6" + TextFormatter.formatLocation(arena.getCenter()) + "\n"))
-                            .append(CC.translate(" &f● Pos1: &6" + TextFormatter.formatLocation(arena.getPos1()) + "\n"))
-                            .append(CC.translate(" &f● Pos2: &6" + TextFormatter.formatLocation(arena.getPos2()) + "\n"));
+                            .append(CC.translate(" &6│ Display Name: &6" + arena.getDisplayName() + "\n"))
+                            .append(CC.translate(" &6│ Type: &6" + arena.getType().name() + "\n"))
+                            .append(CC.translate(" &6│ Center: &6" + TextFormatter.formatLocation(arena.getCenter()) + "\n"))
+                            .append(CC.translate(" &6│ Pos1: &6" + TextFormatter.formatLocation(arena.getPos1()) + "\n"))
+                            .append(CC.translate(" &6│ Pos2: &6" + TextFormatter.formatLocation(arena.getPos2()) + "\n"));
 
                     ComponentBuilder message = new ComponentBuilder("      ");
                     message.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hover.create()));

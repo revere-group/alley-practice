@@ -2,6 +2,7 @@ package dev.revere.alley.feature.match.internal.types;
 
 import dev.revere.alley.common.ListenerUtil;
 import dev.revere.alley.common.PlayerUtil;
+import dev.revere.alley.common.text.CC;
 import dev.revere.alley.core.locale.LocaleService;
 import dev.revere.alley.core.locale.internal.impl.VisualsLocaleImpl;
 import dev.revere.alley.core.locale.internal.impl.message.GameMessagesLocaleImpl;
@@ -198,6 +199,25 @@ public class HideAndSeekMatch extends DefaultMatch {
         }
 
         giveLoadout(player, getKit());
+    }
+
+    // todo: check if this shit even works lol remember some bugs occuring upon leave
+    @Override
+    public void handleDisconnect(Player player) {
+        MatchGamePlayer gamePlayer = getFromAllGamePlayers(player);
+        if (gamePlayer == null || gamePlayer.isDead()) {
+            return;
+        }
+
+        gamePlayer.setDead(true);
+        gamePlayer.setEliminated(true);
+        gamePlayer.setDisconnected(true);
+
+        GameParticipant<MatchGamePlayer> participant = getParticipant(player);
+        String teamName = (participant == getParticipantA() ? "Seeker" : "Hider");
+        sendMessage(CC.translate("&c&lDISCONNECT! &f" + teamName + " &c" + player.getName() + " &fhas disconnected."));
+
+        checkForConclusion(player, null);
     }
 
     @Override
